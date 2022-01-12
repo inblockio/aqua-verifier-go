@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/inblockio/aqua-verifier-go/api"
 	"golang.org/x/crypto/sha3"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -21,8 +21,6 @@ var (
 	verify    = flag.Bool("ignore-merkle-proof", false, "Ignore verifying the witness merkle proof of each revision")
 	authToken = flag.String("token", "", "(Optional) OAuth2 access token to access the API")
 	dataFile  = flag.String("file", "", "(If present) The file to read from for the data")
-
-	apiClient = &http.Client{}
 )
 
 func main() {
@@ -81,30 +79,6 @@ types nameSpace, siteInfo, and hashChainInfo derived from API response from
 http://localhost:9352/rest.php/data_accounting/get_hash_chain_info/title/Main_Page
 */
 
-type nameSpace struct {
-	ncase bool `json:"case"`
-	title string
-}
-
-type siteInfo struct {
-	sitename   string
-	dbname     string
-	base       *url.URL
-	generator  string
-	ncase      bool `json:"case"`
-	namespaces map[int]*nameSpace
-}
-
-type hashChainInfo struct {
-	genesis_hash             string
-	domain_id                string
-	latest_verification_hash string
-	site_info                *siteInfo
-	title                    string
-	namespace                int
-	chain_height             int
-}
-
 func verifyData(fileName string) bool {
 	_, err := readExportFile(fileName)
 	if err != nil {
@@ -139,36 +113,6 @@ func readExportFile(filename string) ([]byte, error) {
 
 func validateTitle(title string) string {
 	return ""
-}
-
-func getApiURL(server string) *url.URL {
-	panic("NotImplemented")
-	return nil
-}
-
-type serverInfo struct {
-	api_version string
-}
-
-func getServerInfo(server string) *serverInfo {
-	u, err := url.Parse(server + "/rest.php/data_accounting/get_server_info")
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	resp, err := http.Get(u.String())
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	d := json.NewDecoder(resp.Body)
-	s := new(serverInfo)
-	err = d.Decode(s)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return s
 }
 
 func formatHTTPError(response, message string) {
@@ -240,38 +184,6 @@ func calculateVerificationHash(contentHash, metadataHash, signature_hash, witnes
 	return getHashSum(contentHash + metadataHash + signature_hash + witness_hash)
 }
 
-func fetchWithToken(u *url.URL, token string) (*http.Response, error) {
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer"+token)
-	return apiClient.Do(req)
-}
-
-func getRevisionHashes(apiURL *url.URL, title string, token string) *hashChainInfo {
-	u, err := url.Parse(apiURL.String() + "/" + "get_hash_chain_info/title" + title)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	resp, err := fetchWithToken(u, token)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	d := json.NewDecoder(resp.Body)
-	h := new(hashChainInfo)
-	err = d.Decode(h)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return h
-}
-
 func checkAPIVersionCompatibility(server string) {
 }
 
@@ -283,7 +195,7 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 func verifyWitness() {
 }
 
-func printRevisionInfo(detail string) {
+func printRevisionInfo(revision *api.Revision) {
 }
 
 func verifyFile(data []byte) bool {
@@ -291,16 +203,15 @@ func verifyFile(data []byte) bool {
 	return false
 }
 
-func formatRevisionInfo2HTML(server string, detail string, verbose bool) {
+func formatRevisionInfo2HTML(server *api.ServerInfo, detail *api.Revision, verbose bool) {
 }
 
 func formatPageInfo2HTML(serverUrl string, title string, status int, details string, verbose bool) {
 }
 
-func verifyRevision() {
-}
-
-func doPreliminaryAPICall(endpointName string, u *url.URL, token string) {
+func verifyRevision(*api.Revision) bool {
+	panic("NotImplemented")
+	return false
 }
 
 func calculateStatus(count, totalLength int) {
@@ -324,11 +235,11 @@ func makeSureAlwaysArray(x) {
 }
 */
 
-func transformMwXmlRevision2PkcJson(rev string) {
+func transformMwXmlRevision2PkcJson(rev *api.Revision) {
 	panic("NotImplemented")
 }
 
-func transformRevisions(revisions []*revisionData) {
+func transformRevisions(revisions []*api.Revision) {
 	panic("NotImplemented")
 }
 
