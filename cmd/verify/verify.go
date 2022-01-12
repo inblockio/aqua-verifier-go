@@ -54,8 +54,12 @@ func main() {
 }
 
 func usage() {
-	fmt.Println("Usage:\n", "verify [OPTIONS] <page title>\n",
-		"or\n", "verify [OPTIONS] --file <offline file.json or file.xml>\n")
+	fmt.Printf(`Usage:
+verify [OPTIONS] <page title>
+or
+verify [OPTIONS] --file <offline file.json or file.xml>
+
+`)
 	flag.Usage()
 }
 
