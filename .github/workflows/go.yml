@@ -1,0 +1,31 @@
+name: go test
+
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: aqua-verifier-go
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Checkout micro-PKC
+      uses: actions/checkout@v2
+      with:
+        repository: inblockio/micro-PKC
+        path: micro-PKC
+
+    - name: Run micro-PKC
+      run: |
+        cd micro-PKC && ./pkc setup --wallet-address 0x02F40398247BF79eBb995Bf5AE6f635dD0BCE81a
+
+    - name: Build
+      run: cd aqua-verifier-go && go build -v ./...
+
+    - name: Test
+      run: cd aqua-verifier-go && go test -v ./...
