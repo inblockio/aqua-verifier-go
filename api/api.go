@@ -179,6 +179,9 @@ func (a *AquaProtocol) fetch(u *url.URL) (*http.Response, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer"+a.authToken)
 	resp, err := a.apiClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	if resp.StatusCode != http.StatusOK {
 		return resp, errors.New("Request Not 200 OK")
 	}
