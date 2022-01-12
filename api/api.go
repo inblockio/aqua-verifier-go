@@ -14,11 +14,10 @@ import (
 
 const (
 	// API endpoint definitions
-	endpoint_api                 = "/rest.php/"
-	endpoint_get_hash_chain_info = endpoint_api + "/data_accounting/get_hash_chain_info/"
-	endpoint_get_revision_hashes = endpoint_api + "/data_accounting/get_revision_hashes/"
-	endpoint_get_revision        = endpoint_api + "/data_accounting/get_revision/"
-	endpoint_get_server_info     = endpoint_api + "/data_accounting/get_server_info"
+	endpoint_get_hash_chain_info = "/data_accounting/get_hash_chain_info/"
+	endpoint_get_revision_hashes = "/data_accounting/get_revision_hashes/"
+	endpoint_get_revision        = "/data_accounting/get_revision/"
+	endpoint_get_server_info     = "/data_accounting/get_server_info"
 )
 
 // AquaProtocol holds the endpoint specific parameters and authentication token for an API session
@@ -44,9 +43,9 @@ type Namespace struct {
 type SiteInfo struct {
 	SiteName   string             `json:"sitename"`
 	DbName     string             `json:"dbname"`
-	Base       *url.URL           `json:"base"`
+	Base       string             `json:"base"`
 	Generator  string             `json:"generator"`
-	Case       bool               `json:"case"`
+	Case       string             `json:"case"`
 	Namespaces map[int]*Namespace `json:"namespace"`
 }
 
@@ -113,10 +112,11 @@ type Revision struct {
 
 // GetHashChainInfo returns you all context for the requested hash_chain.
 func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, error) {
-	if id_type != "genesis_hash" || id_type != "title" {
+	if id_type != "genesis_hash" && id_type != "title" {
+		panic("wtf")
 		return nil, errors.New("id_type must be genesis_hash or title")
 	}
-	u, err := url.Parse(endpoint_get_hash_chain_info + id_type + "/" + id)
+	u, err := a.GetApiURL(endpoint_get_hash_chain_info + id_type + "/" + id)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, erro
 // GetRevisionHashes returns the revision requested if it exists and or a list of
 // any newer revision then the one requested.
 func (a *AquaProtocol) GetRevisionHashes(verification_hash string) ([]*Revision, error) {
-	u, err := url.Parse(endpoint_get_revision_hashes + verification_hash)
+	u, err := a.GetApiURL(endpoint_get_revision_hashes + verification_hash)
 	if err != nil {
 		return nil, err
 	}
@@ -154,10 +154,15 @@ func (a *AquaProtocol) GetRevisionHashes(verification_hash string) ([]*Revision,
 	// otherwise need to handle both cases.
 	d := json.NewDecoder(resp.Body)
 	r := make([]*Revision, 0)
-	err = d.Decode(r)
+	err = d.Decode(&r)
 	if err != nil {
-		log.Println(err)
-		panic(err)
+		d = json.NewDecoder(resp.Body)
+		s := new(Revision)
+		err = d.Decode(s)
+		if err != nil {
+			return nil, err
+		}
+		r = append(r, s)
 	}
 
 	return r, nil
@@ -173,48 +178,27 @@ func (a *AquaProtocol) fetch(u *url.URL) (*http.Response, error) {
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer"+a.authToken)
-	return a.apiClient.Do(req)
+	resp, err := a.apiClient.Do(req)
+	if resp.StatusCode != http.StatusOK {
+		return resp, errors.New("Request Not 200 OK")
+	}
+	return resp, err
 }
-
-// GetRevisionHashes
-// XXX: incomplete copypasta of the js impl.
-//func GetRevisionHashes(apiURL *url.URL, title string, token string) *RevisionInfo {
-//	u, err := url.Parse(apiURL.String() + "/" + "get_hash_chain_info/title" + title)
-//	if err != nil {
-//		log.Println(err)
-//		return nil
-//	}
-//	resp, err := FetchWithToken(u, token)
-//	if err != nil {
-//		log.Println(err)
-//		return nil
-//	}
-//	d := json.NewDecoder(resp.Body)
-//	h := new(hashChainInfo)
-//	err = d.Decode(h)
-//	if err != nil {
-//		log.Println(err)
-//		return nil
-//	}
-//	return h
-//}
 
 // GetRevision returns all data revision and revision verification data.
 func (a *AquaProtocol) GetRevision(verification_hash string) (*Revision, error) {
-	u, err := url.Parse(endpoint_get_revision + verification_hash)
+	u, err := a.GetApiURL(endpoint_get_revision + verification_hash)
 	if err != nil {
 		return nil, err
 	}
 	resp, err := a.fetch(u)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	d := json.NewDecoder(resp.Body)
 	r := new(Revision)
 	err = d.Decode(r)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
@@ -222,34 +206,31 @@ func (a *AquaProtocol) GetRevision(verification_hash string) (*Revision, error) 
 }
 
 // GetApiURL returns the api endpoint base URL given a server hostname
-func (a *AquaProtocol) GetApiURL() *url.URL {
-	u, err := url.Parse(a.server + a.apiEndpoint)
+func (a *AquaProtocol) GetApiURL(path string) (*url.URL, error) {
+	u, err := url.Parse(a.apiEndpoint + path)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return u
+	return u, nil
 }
 
 // GetServerInfo returns a serverInfo from the endpoint endpoint_get_server_info
-func (a *AquaProtocol) GetServerInfo(server string) *ServerInfo {
-	u, err := url.Parse(endpoint_get_server_info)
+func (a *AquaProtocol) GetServerInfo() (*ServerInfo, error) {
+	u, err := a.GetApiURL(endpoint_get_server_info)
 	if err != nil {
-		log.Println(err)
-		return nil
+		return nil, err
 	}
-	resp, err := http.Get(u.String())
+	resp, err := a.fetch(u)
 	if err != nil {
-		log.Println(err)
-		return nil
+		return nil, err
 	}
 	d := json.NewDecoder(resp.Body)
 	s := new(ServerInfo)
 	err = d.Decode(s)
 	if err != nil {
-		log.Println(err)
-		return nil
+		return nil, err
 	}
-	return s
+	return s, nil
 }
 
 /*
@@ -258,8 +239,11 @@ func doPreliminaryAPICall(endpointName string, u *url.URL, token string) {
 */
 
 // NewAPI returns an initialized AquaProtocol using the server and authentication token
-func NewAPI(server, token string) (*AquaProtocol, error) {
-	// TODO: parse server and confirm it is a valid hostname or return error
+func NewAPI(endpoint, token string) (*AquaProtocol, error) {
+	_, e := url.Parse(endpoint)
+	if e != nil {
+		return nil, e
+	}
 	// TODO: validate that the token is the correct form/length/etc...
-	return &AquaProtocol{server: server, authToken: token, apiEndpoint: endpoint_api}, nil
+	return &AquaProtocol{apiEndpoint: endpoint, authToken: token}, nil
 }
