@@ -168,7 +168,7 @@ func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, erro
 		panic("wtf")
 		return nil, errors.New("id_type must be genesis_hash or title")
 	}
-	u, err := a.GetApiURL(endpoint_get_hash_chain_info + id_type + "/" + id)
+	u, err := a.GetApiURL(endpoint_get_hash_chain_info + id_type + "?identifier=" + id)
 	if err != nil {
 		return nil, err
 	}
