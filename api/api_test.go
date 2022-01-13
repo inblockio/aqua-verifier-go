@@ -16,6 +16,16 @@ func TestGetHashChainInfo(t *testing.T) {
 	require.NoError(e)
 	revInfo, e := a.GetHashChainInfo("title", "Main_Page")
 	require.NoError(e)
+	require.NotEqual(revInfo.GenesisHash, "")
+	require.NotEqual(revInfo.LatestVerificationHash, "")
+	require.NotEqual(revInfo.DomainId, "")
+	require.NotNil(revInfo.SiteInfo)
+	require.NotEqual(revInfo.SiteInfo.SiteName, "")
+	require.NotEqual(revInfo.SiteInfo.DbName, "")
+	require.NotEqual(revInfo.SiteInfo.Base, "")
+	require.NotEqual(revInfo.SiteInfo.Generator, "")
+	require.NotEqual(revInfo.SiteInfo.Case, "")
+	require.NotNil(revInfo.SiteInfo.Namespaces)
 	t.Logf("%v", revInfo)
 }
 

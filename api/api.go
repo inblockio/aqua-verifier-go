@@ -46,7 +46,7 @@ type SiteInfo struct {
 	Base       string             `json:"base"`
 	Generator  string             `json:"generator"`
 	Case       string             `json:"case"`
-	Namespaces map[int]*Namespace `json:"namespace"`
+	Namespaces map[int]*Namespace `json:"namespaces"`
 }
 
 // RevisionInfo holds the api response to endpoint_get_revision_hashes
@@ -55,7 +55,7 @@ type RevisionInfo struct {
 	CurrentRevision        string    `json:"current_revision"`
 	DomainId               string    `json:"domain_id"`
 	Content                string    `json:"content"`
-	LatestVerificationHash string    `json:"latest_verification_hash string"`
+	LatestVerificationHash string    `json:"latest_verification_hash"`
 	SiteInfo               *SiteInfo `json:"site_info"`
 	Title                  string    `json:"title"`
 	Namespace              int       `json:"namespace"`
