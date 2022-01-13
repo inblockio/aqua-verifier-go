@@ -142,20 +142,15 @@ type RevisionWitness struct {
 	DomainId                     string        `json:"domain_id"`
 	DomainSnapshotTitle          string        `json:"domain_snapshot_title"`
 	WitnessHash                  string        `json:"witness_hash"`
-	DomainManifestGenesisHash    string        `json:"domain_manifest_genesis_hash s"`
+	DomainSnapshotGenesisHash    string        `json:"domain_snapshot_genesis_hash"`
 	MerkleRoot                   string        `json:"merkle_root"`
 	WitnessEventVerificationHash string        `json:"witness_event_verification_hash"`
 	WitnessNetwork               string        `json:"witness_network"`
 	SmartContractAddress         string        `json:"smart_contract_address"`
-	DomainSnapshotGenesisHash    string        `json:"domain_snapshot_genesis_hash"`
 	WitnessEventTransactionHash  string        `json:"witness_event_transaction_hash"`
 	SenderAccountAddress         string        `json:"sender_account_address"`
 	Source                       string        `json:"source"`
-	StructuredMerkleProof        []*MerkleNode `json:"structured_merkle_proof"`
-}
-
-// XXX: RevisionMerkleTreeProof holds the ??? in a Revision
-type RevisionMerkleTreeProof struct {
+	MerkleProof                  []*MerkleNode `json:"structured_merkle_proof"`
 }
 
 // Revision holds the api response to endpoint_get_revision
