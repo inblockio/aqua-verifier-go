@@ -89,6 +89,7 @@ type Timestamp struct {
 
 // UnmarshalJSON unmarshals the timestamp field into a time.Time
 func (p *Timestamp) UnmarshalJSON(bytes []byte) error {
+	// XXX: bug, api returns string representation of timestamp, not int
 	// remove quotes and parse the timestamp using the reference time
 	// corresponding to the api endpoint format
 	// https://pkg.go.dev/time#pkg-constants
@@ -118,17 +119,39 @@ type RevisionHash string
 // RevisionSignature holds the signature and identity in a Revision
 type RevisionSignature struct {
 	Signature     string `json:"signature"`
+	PublicKey     string `json:"public_key"`
 	WalletAddress string `json:"wallet_address"`
 	SignatureHash string `json:"signature_hash"`
 }
 
+// MerkleNode holds the entries for the structured merkle proof
+type MerkleNode struct {
+	// XXX: bug, api returns string representation of witness_event_id not int
+	WitnessEventId string `json:"witness_event_id"`
+	// XXX: bug, api returns string representation of depth not int
+	Depth     string `json:"depth"`
+	LeftLeaf  string `json:"left_leaf"`
+	RightLeaf string `json:"right_leaf"`
+	Successor string `json:"successor"`
+}
+
 // RevisionWitness holds the Witness data in a Revision
 type RevisionWitness struct {
-	DomainManifestGenesisHash string `json:"domain_manifest_genesis_hash s"`
-	MerkleRoot                string `json:"merkle_root"`
-	WitnessNetwork            string `json:"witness_network"`
-	Transaction               string `json:"transaction"`
-	WitnessHash               string `json:"witness_hash"`
+	// XXX: bug, api returns string representation of witness_event_id not int
+	WitnessEventId               string        `json:"witness_event_id"`
+	DomainId                     string        `json:"domain_id"`
+	DomainSnapshotTitle          string        `json:"domain_snapshot_title"`
+	WitnessHash                  string        `json:"witness_hash"`
+	DomainManifestGenesisHash    string        `json:"domain_manifest_genesis_hash s"`
+	MerkleRoot                   string        `json:"merkle_root"`
+	WitnessEventVerificationHash string        `json:"witness_event_verification_hash"`
+	WitnessNetwork               string        `json:"witness_network"`
+	SmartContractAddress         string        `json:"smart_contract_address"`
+	DomainSnapshotGenesisHash    string        `json:"domain_snapshot_genesis_hash"`
+	WitnessEventTransactionHash  string        `json:"witness_event_transaction_hash"`
+	SenderAccountAddress         string        `json:"sender_account_address"`
+	Source                       string        `json:"source"`
+	StructuredMerkleProof        []*MerkleNode `json:"structured_merkle_proof"`
 }
 
 // XXX: RevisionMerkleTreeProof holds the ??? in a Revision
@@ -137,12 +160,11 @@ type RevisionMerkleTreeProof struct {
 
 // Revision holds the api response to endpoint_get_revision
 type Revision struct {
-	Context         *VerificationContext     `json:"context"`
-	Content         *RevisionContent         `json:"content"`
-	Metadata        *RevisionMetadata        `json:"metadata"`
-	Signature       *RevisionSignature       `json:"signature"`
-	Witness         *RevisionWitness         `json:"witness"`
-	MerkleTreeProof *RevisionMerkleTreeProof `json:"merkle_tree_proof"`
+	Context   *VerificationContext `json:"verification_context"`
+	Content   *RevisionContent     `json:"content"`
+	Metadata  *RevisionMetadata    `json:"metadata"`
+	Signature *RevisionSignature   `json:"signature"`
+	Witness   *RevisionWitness     `json:"witness"`
 }
 
 // GetHashChainInfo returns you all context for the requested hash_chain.
