@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -63,21 +64,50 @@ type RevisionInfo struct {
 }
 
 // VerificationContext holds the Context in a Revision
-// XXX: what is a Context exactly?
 type VerificationContext struct {
+	HasPreviousSignature bool `json:"has_previous_signature"`
+	HasPreviousWitness   bool `json:"has_previous_witness"`
+}
+
+// ContentData holds the content body and transclusion hashes
+type ContentData struct {
+	Main               string `json:"main"`
+	TransclusionHashes string `json:"transclusion-hashes"`
 }
 
 // RevisionContent holds the content and hash in a Revision
 type RevisionContent struct {
-	ContentData string `json:"content_data"`
-	ContentHash string `json:"content_hash"`
+	RevId       int          `json:"rev_id"`
+	Content     *ContentData `json:"content"`
+	ContentHash string       `json:"content_hash"`
+}
+
+// Timestamp holds a timestamp in ??? format
+type Timestamp struct {
+	time.Time
+}
+
+// UnmarshalJSON unmarshals the timestamp field into a time.Time
+func (p *Timestamp) UnmarshalJSON(bytes []byte) error {
+	// remove quotes and parse the timestamp using the reference time
+	// corresponding to the api endpoint format
+	// https://pkg.go.dev/time#pkg-constants
+	layout := "20060102150405"
+	t, err := time.Parse(layout, strings.ReplaceAll(string(bytes), `"`, ""))
+	if err != nil {
+		return err
+	}
+	p.Time = t
+	return nil
 }
 
 // RevisionMetadata holds the api response to endpoint_get_revision_
 type RevisionMetadata struct {
-	domain_id                  string    `json:"domain_id"`
-	timestamp                  time.Time `json:"timestamp"`
-	previous_verification_hash string    `json:"previous_verification_hash"`
+	DomainId                 string    `json:"domain_id"`
+	Timestamp                Timestamp `json:"time_stamp"`
+	PreviousVerificationHash string    `json:"previous_verification_hash"`
+	MetadataHash             string    `json:"metadata_hash"`
+	VerificationHash         string    `json:"verification_hash"`
 }
 
 // RevisionHash holds the response to endpoint_get_revision_hashes
