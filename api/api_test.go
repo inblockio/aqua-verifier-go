@@ -34,10 +34,16 @@ func TestGetRevisionHashes(t *testing.T) {
 	require := require.New(t)
 	a, e := NewAPI(testServer, testToken)
 	require.NoError(e)
-	revHashes, e := a.GetRevisionHashes("")
-	require.Error(e)
+	// get a verification hash from the main page
+	revInfo, e := a.GetHashChainInfo("title", "Main_Page")
+	require.NoError(e)
+	require.NotEqual(revInfo.LatestVerificationHash, "")
+
+	revHashes, e := a.GetRevisionHashes(revInfo.LatestVerificationHash)
+	require.NoError(e)
+	require.NotEmpty(revHashes)
 	for _, rev := range revHashes {
-		t.Logf("%v", rev)
+		t.Logf("VerificationHash: %v", *rev)
 	}
 }
 

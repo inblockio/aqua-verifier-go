@@ -49,7 +49,7 @@ type SiteInfo struct {
 	Namespaces map[int]*Namespace `json:"namespaces"`
 }
 
-// RevisionInfo holds the api response to endpoint_get_revision_hashes
+// RevisionInfo holds the api response to endpoint_get_hash_chain_info
 type RevisionInfo struct {
 	GenesisHash            string    `json:"genesis_hash"`
 	CurrentRevision        string    `json:"current_revision"`
@@ -79,6 +79,11 @@ type RevisionMetadata struct {
 	timestamp                  time.Time `json:"timestamp"`
 	previous_verification_hash string    `json:"previous_verification_hash"`
 }
+
+// RevisionHash holds the response to endpoint_get_revision_hashes
+type RevisionHash string
+
+// TODO: add deserialize methods to convert the hexadecimal string representation to binary
 
 // RevisionSignature holds the signature and identity in a Revision
 type RevisionSignature struct {
@@ -138,31 +143,22 @@ func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, erro
 
 // GetRevisionHashes returns the revision requested if it exists and or a list of
 // any newer revision then the one requested.
-func (a *AquaProtocol) GetRevisionHashes(verification_hash string) ([]*Revision, error) {
+func (a *AquaProtocol) GetRevisionHashes(verification_hash string) ([]*RevisionHash, error) {
 	u, err := a.GetApiURL(endpoint_get_revision_hashes + verification_hash)
 	if err != nil {
 		return nil, err
 	}
-	// XXX: do the api call
 
 	resp, err := a.fetch(u)
 	if err != nil {
 		return nil, err
 	}
 
-	// XXX: unclear if this will deserialize a response that is a single element into a list of 1
-	// otherwise need to handle both cases.
 	d := json.NewDecoder(resp.Body)
-	r := make([]*Revision, 0)
+	r := make([]*RevisionHash, 0)
 	err = d.Decode(&r)
 	if err != nil {
-		d = json.NewDecoder(resp.Body)
-		s := new(Revision)
-		err = d.Decode(s)
-		if err != nil {
-			return nil, err
-		}
-		r = append(r, s)
+		return nil, err
 	}
 
 	return r, nil
