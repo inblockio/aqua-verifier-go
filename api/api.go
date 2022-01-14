@@ -19,6 +19,7 @@ const (
 	endpoint_get_revision_hashes = "/data_accounting/get_revision_hashes/"
 	endpoint_get_revision        = "/data_accounting/get_revision/"
 	endpoint_get_server_info     = "/data_accounting/get_server_info"
+	timestamp_layout             = "20060102150405"
 )
 
 // AquaProtocol holds the endpoint specific parameters and authentication token for an API session
@@ -94,13 +95,16 @@ func (p *Timestamp) UnmarshalJSON(bytes []byte) error {
 	// remove quotes and parse the timestamp using the reference time
 	// corresponding to the api endpoint format
 	// https://pkg.go.dev/time#pkg-constants
-	layout := "20060102150405"
-	t, err := time.Parse(layout, strings.ReplaceAll(string(bytes), `"`, ""))
+	t, err := time.Parse(timestamp_layout, strings.ReplaceAll(string(bytes), `"`, ""))
 	if err != nil {
 		return err
 	}
 	p.Time = t
 	return nil
+}
+
+func (p *Timestamp) String() string {
+	return p.Format(timestamp_layout)
 }
 
 // RevisionMetadata holds the api response to endpoint_get_revision_
