@@ -95,7 +95,7 @@ func verifyURL(u *url.URL) bool {
 	return false
 }
 
-func readExportFile(filename string) ([]byte, error) {
+func readExportFile(filename string) (*api.OfflineData, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -103,11 +103,12 @@ func readExportFile(filename string) ([]byte, error) {
 
 	if strings.HasSuffix(strings.ToLower(f.Name()), ".json") {
 		d := json.NewDecoder(f)
-		data := &offlineData{}
+		data := &api.OfflineData{}
 		err := d.Decode(data)
 		if err != nil {
 			return nil, err
 		}
+		return data, nil
 	}
 	if strings.HasSuffix(strings.ToLower(f.Name()), ".xml") {
 		panic("NotImplemented")
@@ -224,14 +225,13 @@ func calculateStatus(count, totalLength int) {
 func generateVerifyPage() {
 }
 
-func verifyPage(input []byte, verbose bool, doVerifyMerkleProof bool, token string) bool {
+func verifyPage(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool, token string) bool {
 	panic("NotImplemented")
 	return false
 }
 
-func verifyPageCLI(input []byte, verbose bool, doVerifyMerkleProof bool) bool {
-	panic("NotImplemented")
-	return false
+func verifyPageCLI(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool) bool {
+	return true
 }
 
 /*

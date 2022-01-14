@@ -52,15 +52,16 @@ type SiteInfo struct {
 
 // RevisionInfo holds the api response to endpoint_get_hash_chain_info
 type RevisionInfo struct {
-	GenesisHash            string    `json:"genesis_hash"`
-	CurrentRevision        string    `json:"current_revision"`
-	DomainId               string    `json:"domain_id"`
-	Content                string    `json:"content"`
-	LatestVerificationHash string    `json:"latest_verification_hash"`
-	SiteInfo               *SiteInfo `json:"site_info"`
-	Title                  string    `json:"title"`
-	Namespace              int       `json:"namespace"`
-	ChainHeight            int       `json:"chain_height"`
+	GenesisHash            string               `json:"genesis_hash"`
+	CurrentRevision        string               `json:"current_revision"`
+	DomainId               string               `json:"domain_id"`
+	Content                string               `json:"content"`
+	LatestVerificationHash string               `json:"latest_verification_hash"`
+	SiteInfo               *SiteInfo            `json:"site_info"`
+	Title                  string               `json:"title"`
+	Namespace              int                  `json:"namespace"`
+	ChainHeight            int                  `json:"chain_height"`
+	Revisions              map[string]*Revision `json:"revisions,omitempty"` // only present in offline data
 }
 
 // VerificationContext holds the Context in a Revision
@@ -160,6 +161,12 @@ type Revision struct {
 	Metadata  *RevisionMetadata    `json:"metadata"`
 	Signature *RevisionSignature   `json:"signature"`
 	Witness   *RevisionWitness     `json:"witness"`
+}
+
+// OfflineData holds the deserialized json-encoded export from PKC
+type OfflineData struct {
+	Pages    []*RevisionInfo
+	SiteInfo *SiteInfo
 }
 
 // GetHashChainInfo returns you all context for the requested hash_chain.
