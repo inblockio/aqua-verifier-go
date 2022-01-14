@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	verbose   = flag.String("v", "", "Verbose")
+	verbose   = flag.Bool("v", false, "Verbose")
 	endpoint  = flag.String("server", "http://localhost:9352", "<The url of the server, e.g. https://pkc.inblock.io>")
 	verify    = flag.Bool("ignore-merkle-proof", false, "Ignore verifying the witness merkle proof of each revision")
 	authToken = flag.String("token", "", "(Optional) OAuth2 access token to access the API")
@@ -63,32 +63,27 @@ verify [OPTIONS] --file <offline file.json or file.xml>
 	flag.Usage()
 }
 
-type offlineData struct {
-	// TODO: figure out what this format is
-}
-
-type revisionHash struct {
-	// TODO: figure out what this format is
-}
-
-type revisionData struct {
-	// TODO: figure out what this format is
-	version   string
-	title     string
-	revisions []revisionHash
-}
-
-/*
-types nameSpace, siteInfo, and hashChainInfo derived from API response from
-http://localhost:9352/rest.php/data_accounting/get_hash_chain_info/title/Main_Page
-*/
-
 func verifyData(fileName string) bool {
-	_, err := readExportFile(fileName)
+	data, err := readExportFile(fileName)
 	if err != nil {
-		panic(err)
+		log.Fatalf(err.Error())
 	}
-	return false
+
+	if *verbose {
+		j, err := json.MarshalIndent(data, "", "  ")
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+		fmt.Printf("Decoded input as:\n%s\n", j)
+	}
+
+	for _, p := range data.Pages {
+		res := verifyPageCLI(p, *verbose, *verify)
+		if !res {
+			return false
+		}
+	}
+	return true
 }
 
 func verifyURL(u *url.URL) bool {
@@ -231,7 +226,8 @@ func verifyPage(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool, 
 }
 
 func verifyPageCLI(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool) bool {
-	return true
+	panic("NotImplemented")
+	return false
 }
 
 /*
