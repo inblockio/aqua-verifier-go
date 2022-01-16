@@ -81,8 +81,8 @@ func verifyData(fileName string) bool {
 		fmt.Printf("Decoded input as:\n%s\n", j)
 	}
 
-	for _, p := range data.Pages {
-		res := verifyPageCLI(p, *verbose, *verify)
+	for _, r := range data.Pages {
+		res := verifyOfflineData(r, *verbose, *verify)
 		if !res {
 			return false
 		}
@@ -308,49 +308,25 @@ func verifyRevision(r *api.Revision) bool {
 func calculateStatus(count, totalLength int) {
 }
 
-func verifyPage(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool, token string) bool {
-	panic("NotImplemented")
-	return false
-}
-
-// verifyPage verifies all revisions of a page.
-func verifyPageCLI(page *api.RevisionInfo, verbose bool, doVerifyMerkleProof bool) bool {
+// verifyOfflineData verifies all revisions of a page.
+func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerkleProof bool) bool {
 
 	// start with the latest revision, and verify each revision until we reach the genesis
-	rh := page.LatestVerificationHash
+	rh := data.LatestVerificationHash
 
-	for height := page.ChainHeight - 1; height >= 0; height-- {
-		r, ok := page.Revisions[rh]
+	for height := data.ChainHeight - 1; height >= 0; height-- {
+		r, ok := data.Revisions[rh]
 		if !ok {
 			log.Println("Failed to find previous revision")
 			return false
 		}
 		if !verifyRevision(r) {
 			log.Printf("Failed to verify revision %s", rh)
-			panic("wtf")
 			return false
 		}
-		dId := r.Metadata.DomainId
-		if dId != page.DomainId {
-			log.Printf("Inconsistent domainId in Revision %s", rh)
-			return false
-		}
-		ts := r.Metadata.Timestamp.String()
-		fmt.Println(ts)
-		ph := r.Metadata.PreviousVerificationHash
-
-		mh := calculateMetadataHash(dId, ts, ph)
-		if mh != r.Metadata.MetadataHash {
-			log.Printf("MetadataHash does not match in revision %s", rh)
-			log.Println("Calculated:" + mh)
-			log.Println("Previous:" + r.Metadata.MetadataHash)
-			return false
-		}
-		fmt.Printf("h: %d\n", height)
-		fmt.Printf("rh: %s\n", rh)
 		rh = r.Metadata.PreviousVerificationHash
 		if rh == "" && height == 0 {
-			if r.Metadata.VerificationHash != page.GenesisHash {
+			if r.Metadata.VerificationHash != data.GenesisHash {
 				log.Println("Failed to reach genesis revision!")
 				return false
 			}
