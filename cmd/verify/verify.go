@@ -113,7 +113,15 @@ func readExportFile(filename string) (*api.OfflineData, error) {
 }
 
 func validateTitle(title string) string {
-	return ""
+	var t string
+	if strings.Contains(title, "_") {
+		t = strings.ReplaceAll(title, "_", " ")
+		log.Println("Warning: Underscores in title are converted to spaces.")
+	}
+	if strings.Contains(t, ": ") {
+		log.Println("Warning: Space after ':' detected. You might need to remove it to match MediaWiki title.")
+	}
+	return t
 }
 
 func formatHTTPError(response, message string) {
