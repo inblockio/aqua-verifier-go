@@ -269,8 +269,10 @@ func verifyWitness() {
 func printRevisionInfo(revision *api.Revision) {
 }
 
-func verifyFile(data []byte) bool {
-	panic("NotImplemented")
+func verifyContent(content *api.RevisionContent) bool {
+	if content.ContentHash == getHashSum(content.Content.Main+content.Content.SignatureSlot+content.Content.TransclusionHashes) {
+		return true
+	}
 	return false
 }
 
@@ -295,6 +297,10 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 
 func verifyRevision(r *api.Revision) bool {
 	if !verifyRevisionMetadata(r) {
+		return false
+	}
+
+	if !verifyContent(r.Content) {
 		return false
 	}
 

@@ -79,6 +79,7 @@ type VerificationContext struct {
 type ContentData struct {
 	Main               string `json:"main"`
 	TransclusionHashes string `json:"transclusion-hashes"`
+	SignatureSlot      string `json:"signature-slot"`
 }
 
 // RevisionContent holds the content and hash in a Revision
