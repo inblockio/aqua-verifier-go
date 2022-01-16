@@ -229,7 +229,24 @@ func formatRevisionInfo2HTML(server *api.ServerInfo, detail *api.Revision, verbo
 func formatPageInfo2HTML(serverUrl string, title string, status int, details string, verbose bool) {
 }
 
-func verifyRevision(*api.Revision) bool {
+func verifyRevisionMetadata(r *api.Revision) bool {
+	mh := calculateMetadataHash(r.Metadata.DomainId,
+		r.Metadata.Timestamp.String(),
+		r.Metadata.PreviousVerificationHash)
+	if mh == r.Metadata.MetadataHash {
+		return true
+	}
+	log.Printf("MetadataHash does not match in revision %s", r)
+	log.Println("Calculated:" + mh)
+	log.Println("Previous:" + r.Metadata.MetadataHash)
+	return false
+}
+
+func verifyRevision(r *api.Revision) bool {
+	if !verifyRevisionMetadata(r) {
+		return false
+	}
+
 	//vh
 	//revisionInput
 	//previousVerification
