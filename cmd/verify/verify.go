@@ -22,6 +22,8 @@ var (
 	verify    = flag.Bool("ignore-merkle-proof", false, "Ignore verifying the witness merkle proof of each revision")
 	authToken = flag.String("token", "", "(Optional) OAuth2 access token to access the API")
 	dataFile  = flag.String("file", "", "(If present) The file to read from for the data")
+	depth     = flag.Int("depth", -1, "(Optional) Depth to follow verification chain. By default, verifies all revisions")
+	ap        *api.AquaProtocol
 )
 
 const (
@@ -46,14 +48,11 @@ func main() {
 		}
 	} else {
 		// else construct a url from the endpoint and page name
-		u, err := url.Parse(*endpoint + "/" + flag.Args()[0])
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if verifyURL(u) {
-			fmt.Println("Verified:", u)
+		title := flag.Args()[0]
+		if verifyPage(title) {
+			fmt.Println("Verified:", title)
 		} else {
-			fmt.Println("Failed to verify:", u)
+			fmt.Println("Failed to verify:", title)
 		}
 	}
 }
@@ -91,8 +90,60 @@ func verifyData(fileName string) bool {
 	return true
 }
 
-func verifyURL(u *url.URL) bool {
-	return false
+func verifyPage(page string) bool {
+	var err error
+	ap, err = api.NewAPI(*endpoint, *authToken)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	s, err := ap.GetServerInfo()
+	if err != nil {
+		fmt.Println("Unable to query server info:", err)
+		return false
+	} else if s.ApiVersion != apiVersion {
+		fmt.Println("Incompatible API version:")
+		fmt.Println("Current supported version: ", apiVersion)
+		fmt.Println("Server version: ", s.ApiVersion)
+		return false
+	}
+
+	ri, err := ap.GetHashChainInfo("title", validateTitle(page))
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	h, err := ap.GetRevisionHashes(ri.GenesisHash)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	if len(h) == 0 {
+		// no data
+		fmt.Println("No revision hashes found")
+		return false
+	}
+
+	// starting at the latest revision, work backwards towards genesis hash
+	cur := ri.LatestVerificationHash
+	if len(h) < *depth || *depth == -1 {
+		*depth = len(h)
+		log.Printf("Following %d revisions deep\n", len(h))
+	}
+
+	for i := 0; i < *depth; i++ {
+		r, err := ap.GetRevision(cur)
+		if err != nil {
+			fmt.Printf("Failure getting revision %s: %s\n", cur, err)
+			return false
+		}
+		if !verifyRevision(r) {
+			return false
+		}
+	}
+	return true
 }
 
 func readExportFile(filename string) (*api.OfflineData, error) {
