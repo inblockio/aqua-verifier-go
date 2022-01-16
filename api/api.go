@@ -180,10 +180,9 @@ type OfflineData struct {
 // GetHashChainInfo returns you all context for the requested hash_chain.
 func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, error) {
 	if id_type != "genesis_hash" && id_type != "title" {
-		panic("wtf")
 		return nil, errors.New("id_type must be genesis_hash or title")
 	}
-	u, err := a.GetApiURL(endpoint_get_hash_chain_info + id_type + "?identifier=" + id)
+	u, err := a.GetApiURL(endpoint_get_hash_chain_info + id_type + "?identifier=" + url.QueryEscape(id))
 	if err != nil {
 		return nil, err
 	}
