@@ -24,6 +24,10 @@ var (
 	dataFile  = flag.String("file", "", "(If present) The file to read from for the data")
 )
 
+const (
+	apiVersion = "0.3.0"
+)
+
 func main() {
 
 	flag.Parse()
@@ -193,7 +197,14 @@ func calculateVerificationHash(contentHash, metadataHash, signature_hash, witnes
 	return getHashSum(contentHash + metadataHash + signature_hash + witness_hash)
 }
 
-func checkAPIVersionCompatibility(server string) {
+func checkAPIVersionCompatibility(ap *api.AquaProtocol) bool {
+	s, err := ap.GetServerInfo()
+	if err != nil {
+		log.Println("Unable to query server info:", err)
+	} else if s.ApiVersion == apiVersion {
+		return true
+	}
+	return false
 }
 
 func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
