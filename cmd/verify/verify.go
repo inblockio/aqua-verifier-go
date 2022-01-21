@@ -5,6 +5,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/inblockio/aqua-verifier-go/api"
@@ -82,10 +83,7 @@ func verifyData(fileName string) bool {
 	}
 
 	for _, r := range data.Pages {
-		res := verifyOfflineData(r, *verbose, *verify)
-		if !res {
-			return false
-		}
+		verifyOfflineData(r, *verbose, *verify)
 	}
 	return true
 }
@@ -128,18 +126,34 @@ func verifyPage(page string) bool {
 
 	// starting at the latest revision, work backwards towards genesis hash
 	cur := ri.LatestVerificationHash
-	if len(h) < *depth || *depth == -1 {
-		*depth = len(h)
-		log.Printf("Following %d revisions deep\n", len(h))
+	var height int
+	if *depth == -1 || *depth > len(h) {
+		height = len(h)
+	} else if *depth < len(h) {
+		height = *depth
 	}
 
-	for i := 0; i < *depth; i++ {
+	// follow the revisions height deep, and order revisions from newest to oldest:
+	verificationSet := make([]*api.Revision, height)
+	for i := 0; i < height; i++ {
 		r, err := ap.GetRevision(cur)
 		if err != nil {
 			fmt.Printf("Failure getting revision %s: %s\n", cur, err)
 			return false
 		}
-		if !verifyRevision(r) {
+		verificationSet[i] = r
+		cur = r.Metadata.PreviousVerificationHash
+	}
+
+	fmt.Println("Verifying", height, "Revisions for", page)
+	// verify each revision from oldest to newest
+	for i := 0; i < len(verificationSet)-1; i += 1 {
+		// this is the last (or only) element in the set to verify
+		if i == len(verificationSet) {
+			if !verifyRevision(verificationSet[i], nil) {
+				return false
+			}
+		} else if !verifyRevision(verificationSet[i], verificationSet[i+1]) {
 			return false
 		}
 	}
@@ -262,7 +276,12 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 	return false
 }
 
-func verifyWitness() {
+func verifyWitness(r *api.Revision) bool {
+	e := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
+	if e == nil {
+		return true
+	}
+	return false
 }
 
 func printRevisionInfo(revision *api.Revision) {
@@ -294,19 +313,126 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 	return false
 }
 
-func verifyRevision(r *api.Revision) bool {
+func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
+	var prevSignature string
+	var prevPublicKey string
+	var prevSignatureHash string
+	var prevWitnessHash string
+	var verificationHash string
+
+	// calculate and check prevSignatureHash from previous revision
+	if prev != nil {
+		if r.Context.HasPreviousSignature {
+			prevSignature = prev.Signature.Signature
+			prevPublicKey = prev.Signature.PublicKey
+			prevSignatureHash = calculateSignatureHash(prevSignature, prevPublicKey)
+			if prevSignatureHash != prev.Signature.SignatureHash {
+				log.Printf("RevisionSignature does not match in revision %s", prev)
+				log.Println("Calculated:" + prevSignatureHash)
+				log.Println("Previous:" + prev.Signature.SignatureHash)
+				return false, errors.New("Previous signature hash doesn't match")
+			}
+		}
+	} else {
+		if r.Context.HasPreviousSignature {
+			return false, errors.New("Revision has previous signature, but no previous revision provided to validate")
+		}
+		prevSignatureHash = ""
+	}
+
+	// calculate and check prevWitnessHash from previous revision
+	if r.Context.HasPreviousWitness {
+		if r.Witness == nil {
+			return false, errors.New("Previous witness data not found")
+		}
+		prevWitnessHash = calculateWitnessHash(
+			prev.Witness.DomainSnapshotGenesisHash,
+			prev.Witness.MerkleRoot,
+			prev.Witness.WitnessNetwork,
+			prev.Witness.WitnessEventTransactionHash)
+		if prevWitnessHash != prev.Witness.WitnessHash {
+			return false, errors.New("Witness hash doesn't match")
+		}
+	}
+
+	// calculate verification hash
+	verificationHash = calculateVerificationHash(r.Content.ContentHash, r.Metadata.MetadataHash, prevSignatureHash, prevWitnessHash)
+	if verificationHash != r.Metadata.VerificationHash {
+		if *verbose {
+			fmt.Println("  Actual content hash: ", r.Content.ContentHash)
+			fmt.Println("  Actual metadata hash: ", r.Metadata.MetadataHash)
+			fmt.Println("  Actual signature hash: ", prevSignatureHash)
+			if r.Witness != nil {
+				fmt.Println("  Witness event id: ", r.Witness.WitnessEventId)
+			}
+			if r.Context.HasPreviousSignature {
+				fmt.Println("  HasPreviousSignature")
+			}
+			if r.Context.HasPreviousWitness {
+				fmt.Println("  HasPreviousWitness")
+				fmt.Println("  Actual previous witness hash: ", prevWitnessHash)
+			}
+			fmt.Println("  Expected verification hash: ", r.Metadata.VerificationHash)
+			fmt.Println("  Actual verification hash: ", verificationHash)
+		}
+		return false, errors.New("Verification hash doesn't match")
+	}
+	return true, nil
+}
+
+func jsonprint(f interface{}) {
+	j, err := json.MarshalIndent(f, "", "  ")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("%s\n", j)
+}
+
+func success(r *api.Revision) {
+	log.Println("Verified: ", r.Metadata.VerificationHash)
+	if *verbose {
+		jsonprint(r.Metadata)
+		jsonprint(r.Witness)
+		jsonprint(r.Signature)
+	}
+}
+
+func failure(r *api.Revision) {
+	log.Println("Failed to verify: ", r.Metadata.VerificationHash)
+	if *verbose {
+		jsonprint(r.Metadata)
+		jsonprint(r.Witness)
+		jsonprint(r.Signature)
+	}
+}
+
+func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	if !verifyRevisionMetadata(r) {
+		failure(r)
 		return false
 	}
 
 	if !verifyContent(r.Content) {
+		failure(r)
 		return false
 	}
 
-	//vh
-	//revisionInput
-	//previousVerification
-	//doVerifyMerkleProof
+	b, e := verifySignature(r, prev)
+	if !b || e != nil {
+		failure(r)
+		return false
+	}
+
+	if r.Witness == nil {
+		fmt.Println(r.Metadata.VerificationHash, "Has no witness")
+	} else {
+		if !verifyWitness(r) {
+			failure(r)
+			return false
+		}
+	}
+
+	success(r)
 	return true
 }
 
@@ -315,30 +441,40 @@ func calculateStatus(count, totalLength int) {
 
 // verifyOfflineData verifies all revisions of a page.
 func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerkleProof bool) bool {
+	var height int
+	if *depth == -1 || *depth > len(data.Revisions) {
+		height = len(data.Revisions)
+	} else if *depth < len(data.Revisions) {
+		height = *depth
+	}
 
-	// start with the latest revision, and verify each revision until we reach the genesis
-	rh := data.LatestVerificationHash
+	// follow the revisions height deep, and order revisions by oldest to newest:
+	verificationSet := make([]*api.Revision, height)
+	cur := data.LatestVerificationHash
 
-	for height := data.ChainHeight - 1; height >= 0; height-- {
-		r, ok := data.Revisions[rh]
+	for i := 0; i < height; i++ {
+		r, ok := data.Revisions[cur]
 		if !ok {
-			log.Println("Failed to find previous revision")
+			fmt.Printf("Failure getting revision %s\n", cur)
 			return false
 		}
-		if !verifyRevision(r) {
-			log.Printf("Failed to verify revision %s", rh)
-			return false
-		}
-		rh = r.Metadata.PreviousVerificationHash
-		if rh == "" && height == 0 {
-			if r.Metadata.VerificationHash != data.GenesisHash {
-				log.Println("Failed to reach genesis revision!")
+		verificationSet[i] = r
+		cur = r.Metadata.PreviousVerificationHash
+	}
+
+	fmt.Println("Verifying", height, "Revisions for", data.Title)
+	// verify each revision from oldest to newest
+	for i := 0; i < len(verificationSet); i++ {
+		// this is the last (or only) element in the set to verify
+		if i == len(verificationSet)-1 {
+			if !verifyRevision(verificationSet[i], nil) {
 				return false
 			}
-			return true
+		} else if !verifyRevision(verificationSet[i], verificationSet[i+1]) {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 /*
