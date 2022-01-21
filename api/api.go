@@ -6,9 +6,11 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -20,6 +22,22 @@ const (
 	endpoint_get_revision        = "/data_accounting/get_revision/"
 	endpoint_get_server_info     = "/data_accounting/get_server_info"
 	timestamp_layout             = "20060102150405"
+
+	// etherscan endpoint regular expression and seperator for scraping output
+	etherscanRegexp = `<span id='rawinput'.+?>(.+?)<\/span>`
+	ethMethodId     = "0x9cef4ea1"
+)
+
+var (
+	// etherscan mappings for various ethereum nets
+	WitnessNetworkMap = map[string]string{
+		"mainnet": "https://etherscan.io/tx",
+		"ropsten": "https://ropsten.etherscan.io/tx",
+		"kovan":   "https://kovan.etherscan.io/tx",
+		"rinkeby": "https://rinkeby.etherscan.io/tx",
+		"goerli":  "https://goerli.etherscan.io/tx",
+	}
+	re = regexp.MustCompile(etherscanRegexp)
 )
 
 // AquaProtocol holds the endpoint specific parameters and authentication token for an API session
@@ -292,6 +310,50 @@ func (a *AquaProtocol) GetServerInfo() (*ServerInfo, error) {
 		return nil, err
 	}
 	return s, nil
+}
+
+// CheckEtherscan scrapes etherscan.io to see if the expected eventHash exists for a given transaction.
+func CheckEtherscan(network, txHash, eventHash string) error {
+	n, ok := WitnessNetworkMap[network]
+	if !ok {
+		return errors.New("Invalid ethereum network specified")
+	}
+	u, err := url.Parse(n)
+	if err != nil {
+		return err
+	}
+	u.Path = u.Path + "/" + txHash
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return err
+	}
+	// do the verification
+	c := &http.Client{}
+	resp, err := c.Do(req)
+	if err != nil {
+		return err
+	}
+	// read response
+	buf, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	// scrape output
+	match := re.FindStringSubmatch(string(buf))
+	if match == nil || len(match) < 2 { // no grouping match
+		return errors.New("No Match")
+	}
+	// the response is prefixed by methodId
+	d := strings.Split(match[1], ethMethodId)
+	if len(d) != 2 {
+		return errors.New("No Match")
+	} else {
+		if strings.ToLower(d[1]) != strings.ToLower(eventHash) {
+			return errors.New("eventHash Does NOT match")
+		}
+		return nil
+	}
 }
 
 /*

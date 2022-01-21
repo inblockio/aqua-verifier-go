@@ -119,3 +119,11 @@ func TestGetServerInfo(t *testing.T) {
 	require.NoError(e)
 	t.Logf("%s", info)
 }
+
+func TestEtherscan(t *testing.T) {
+	require := require.New(t)
+	txHash := "0xc8c56a7aa002056d2f6fe2bf2c35fd7e4fd69bd41a81f4089bc28b8f015aa90b"
+	eventHash := "55bbd044788cd625c40a1c4a31d42c17324926f295e10711f3c22c46d55683288e3c00e802cf242ec1a25f70eec545bd91e210a92e4f5354fe8d69f65044aa94"
+	e := CheckEtherscan("goerli", txHash, eventHash)
+	require.NoError(e)
+}
