@@ -71,14 +71,14 @@ type SiteInfo struct {
 
 // RevisionInfo holds the api response to endpoint_get_hash_chain_info
 type RevisionInfo struct {
-	GenesisHash            string               `json:"genesis_hash"`
-	DomainId               string               `json:"domain_id"`
-	Content                string               `json:"content"`
-	LatestVerificationHash string               `json:"latest_verification_hash"`
-	SiteInfo               *SiteInfo            `json:"site_info"`
-	Title                  string               `json:"title"`
-	Namespace              int                  `json:"namespace"`
-	ChainHeight            int                  `json:"chain_height"`
+	GenesisHash            string    `json:"genesis_hash"`
+	DomainId               string    `json:"domain_id"`
+	Content                string    `json:"content"`
+	LatestVerificationHash string    `json:"latest_verification_hash"`
+	SiteInfo               *SiteInfo `json:"site_info"`
+	Title                  string    `json:"title"`
+	Namespace              int       `json:"namespace"`
+	ChainHeight            int       `json:"chain_height"`
 }
 
 // OfflineRevisionInfo is the same as RevisionInfo but has a map of Revision keyed by revision hash
