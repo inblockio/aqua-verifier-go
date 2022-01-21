@@ -239,9 +239,8 @@ func calculateSignatureHash(signature string, publicKey string) string {
 	return getHashSum(signature + publicKey)
 }
 
-func calculateWitnessHash(domain_snapshot_genesis_hash, merkle_root, witness_network, witness_tx_hash string) []byte {
-	panic("NotImplemented")
-	return nil
+func calculateWitnessHash(domain_snapshot_genesis_hash, merkle_root, witness_network, witness_tx_hash string) string {
+	return getHashSum(domain_snapshot_genesis_hash + merkle_root + witness_network + witness_tx_hash)
 }
 
 func calculateVerificationHash(contentHash, metadataHash, signature_hash, witness_hash string) string {
