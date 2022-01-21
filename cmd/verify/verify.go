@@ -307,7 +307,7 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 	if mh == r.Metadata.MetadataHash {
 		return true
 	}
-	log.Printf("MetadataHash does not match in revision %s", r)
+	log.Printf("MetadataHash does not match in revision %s", r.Metadata.VerificationHash)
 	log.Println("Calculated:" + mh)
 	log.Println("Previous:" + r.Metadata.MetadataHash)
 	return false
@@ -327,7 +327,7 @@ func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
 			prevPublicKey = prev.Signature.PublicKey
 			prevSignatureHash = calculateSignatureHash(prevSignature, prevPublicKey)
 			if prevSignatureHash != prev.Signature.SignatureHash {
-				log.Printf("RevisionSignature does not match in revision %s", prev)
+				log.Printf("RevisionSignature does not match in revision %s", prev.Metadata.VerificationHash)
 				log.Println("Calculated:" + prevSignatureHash)
 				log.Println("Previous:" + prev.Signature.SignatureHash)
 				return false, errors.New("Previous signature hash doesn't match")
