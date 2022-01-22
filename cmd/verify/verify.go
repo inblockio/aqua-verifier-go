@@ -8,6 +8,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/inblockio/aqua-verifier-go/api"
 	"golang.org/x/crypto/sha3"
 	"log"
@@ -239,7 +240,6 @@ func makeHref(content string, u *url.URL) {
 }
 
 func getHashSum(content string) string {
-	// XXX: do we want to encode the output in something human parsable such as base64 ?
 	s := sha3.Sum512([]byte(content))
 	return hex.EncodeToString(s[:])
 }
@@ -249,7 +249,6 @@ func calculateMetadataHash(domainId, timestamp, previousVerificationHash string)
 }
 
 func calculateSignatureHash(signature string, publicKey string) string {
-	// XXX: what is the publckey format ?
 	return getHashSum(signature + publicKey)
 }
 
@@ -277,6 +276,55 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 }
 
 func verifyWitness(r *api.Revision) bool {
+	// FIXME: why do some revisions have no signature, but do have a witness?
+	if r.Signature == nil || r.Signature.Signature == "" || r.Signature.SignatureHash == "" || r.Signature.PublicKey == "" || r.Signature.WalletAddress == "" {
+	} else {
+		sigBytes, err := hex.DecodeString(r.Signature.Signature)
+		if err != nil {
+			return false
+		}
+		sigHashBytes, err := hex.DecodeString(r.Signature.SignatureHash)
+		if err != nil {
+			return false
+		}
+
+		eCpubKey, err := crypto.Ecrecover(sigHashBytes, sigBytes)
+		if err != nil {
+			return false
+		}
+
+		pubKeyBytes, err := hex.DecodeString(r.Signature.PublicKey)
+		if err != nil {
+			return false
+		}
+		pubKey, err := crypto.UnmarshalPubkey(pubKeyBytes)
+
+		if err != nil {
+			return false
+		}
+
+		if !pubKey.Equal(eCpubKey) {
+			return false
+		}
+
+		paddedMesg := "I sign the following page verification_hash: [0x" + r.Metadata.VerificationHash + "]"
+		sig, err := hex.DecodeString(r.Signature.Signature)
+		if err != nil {
+			return false
+		}
+		recoveredAddress, err := crypto.Ecrecover(crypto.Keccak256([]byte(paddedMesg)), sig)
+		if err != nil {
+			return false
+		}
+
+		e := api.CheckEtherscan(r.Witness.WitnessNetwork, hex.EncodeToString(recoveredAddress), r.Witness.WitnessEventVerificationHash)
+		if e == nil {
+			return true
+		} else {
+			return false
+		}
+	}
+
 	e := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
 	if e == nil {
 		return true
