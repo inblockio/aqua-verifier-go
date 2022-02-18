@@ -342,7 +342,7 @@ func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
 
 	// calculate and check prevWitnessHash from previous revision
 	if r.Context.HasPreviousWitness {
-		if r.Witness == nil {
+		if prev.Witness == nil {
 			return false, errors.New("Previous witness data not found")
 		}
 		prevWitnessHash = calculateWitnessHash(
