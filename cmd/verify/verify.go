@@ -397,8 +397,8 @@ func success(r *api.Revision) {
 	}
 }
 
-func failure(r *api.Revision) {
-	log.Println("Failed to verify: ", r.Metadata.VerificationHash)
+func failure(r *api.Revision, context string) {
+	log.Println("Failed to verify: ", context, r.Metadata.VerificationHash)
 	if *verbose {
 		jsonprint(r.Metadata)
 		jsonprint(r.Witness)
@@ -408,18 +408,19 @@ func failure(r *api.Revision) {
 
 func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	if !verifyRevisionMetadata(r) {
-		failure(r)
+		failure(r, "RevisionMetadata")
 		return false
 	}
 
 	if !verifyContent(r.Content) {
-		failure(r)
+		failure(r, "Content")
 		return false
 	}
 
 	b, e := verifySignature(r, prev)
 	if !b || e != nil {
-		failure(r)
+		failure(r, "Signature")
+		fmt.Println(e)
 		return false
 	}
 
@@ -427,7 +428,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		fmt.Println(r.Metadata.VerificationHash, "Has no witness")
 	} else {
 		if !verifyWitness(r) {
-			failure(r)
+			failure(r, "Witness")
 			return false
 		}
 	}
@@ -458,7 +459,7 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 			fmt.Printf("Failure getting revision %s\n", cur)
 			return false
 		}
-		verificationSet[i] = r
+		verificationSet[height - i - 1] = r
 		cur = r.Metadata.PreviousVerificationHash
 	}
 
@@ -466,11 +467,11 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 	// verify each revision from oldest to newest
 	for i := 0; i < len(verificationSet); i++ {
 		// this is the last (or only) element in the set to verify
-		if i == len(verificationSet)-1 {
+		if i == 0 {
 			if !verifyRevision(verificationSet[i], nil) {
 				return false
 			}
-		} else if !verifyRevision(verificationSet[i], verificationSet[i+1]) {
+		} else if !verifyRevision(verificationSet[i], verificationSet[i-1]) {
 			return false
 		}
 	}
