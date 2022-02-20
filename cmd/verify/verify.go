@@ -466,7 +466,7 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 	fmt.Println("Verifying", height, "Revisions for", data.Title)
 	// verify each revision from oldest to newest
 	for i := 0; i < len(verificationSet); i++ {
-		// this is the last (or only) element in the set to verify
+		// this is the first (or only) element in the set to verify
 		if i == 0 {
 			if !verifyRevision(verificationSet[i], nil) {
 				return false
