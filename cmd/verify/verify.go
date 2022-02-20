@@ -29,6 +29,13 @@ var (
 
 const (
 	apiVersion = "0.3.0"
+	WARN = "⚠️"
+	CROSSMARK = "❌"
+	CHECKMARK = "✅"
+	LOCKED_WITH_PEN = "🔏"
+	WATCH = "⌚"
+	BRANCH = "🌿"
+	FILE_GLYPH = "📄"
 )
 
 func main() {
@@ -332,6 +339,7 @@ func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
 				log.Println("Previous:" + prev.Signature.SignatureHash)
 				return false, errors.New("Previous signature hash doesn't match")
 			}
+			fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
 		}
 	} else {
 		if r.Context.HasPreviousSignature {
@@ -389,7 +397,7 @@ func jsonprint(f interface{}) {
 }
 
 func success(r *api.Revision) {
-	log.Println("Verified: ", r.Metadata.VerificationHash)
+	fmt.Printf("  %s Verified\n", CHECKMARK)
 	if *verbose {
 		jsonprint(r.Metadata)
 		jsonprint(r.Witness)
@@ -425,7 +433,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	}
 
 	if r.Witness == nil {
-		fmt.Println(r.Metadata.VerificationHash, "Has no witness")
+		fmt.Printf("    %s Not witnessed\n", WARN)
 	} else {
 		if !verifyWitness(r) {
 			failure(r, "Witness")
@@ -466,12 +474,14 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 	fmt.Println("Verifying", height, "Revisions for", data.Title)
 	// verify each revision from oldest to newest
 	for i := 0; i < len(verificationSet); i++ {
+		revision := verificationSet[i]
+		fmt.Printf("%d. Verification of %s\n", i + 1, revision.Metadata.VerificationHash)
 		// this is the first (or only) element in the set to verify
 		if i == 0 {
-			if !verifyRevision(verificationSet[i], nil) {
+			if !verifyRevision(revision, nil) {
 				return false
 			}
-		} else if !verifyRevision(verificationSet[i], verificationSet[i-1]) {
+		} else if !verifyRevision(revision, verificationSet[i-1]) {
 			return false
 		}
 	}
