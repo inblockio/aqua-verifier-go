@@ -283,7 +283,7 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 	return false
 }
 
-func verifyWitness(r *api.Revision) bool {
+func checkEtherScan(r *api.Revision) bool {
 	e := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
 	if e == nil {
 		return true
@@ -321,50 +321,65 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 }
 
 func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
-	var prevSignature string
-	var prevPublicKey string
-	var prevSignatureHash string
-	var prevWitnessHash string
-	var verificationHash string
-
 	// calculate and check prevSignatureHash from previous revision
 	if prev != nil {
 		if r.Context.HasPreviousSignature {
-			prevSignature = prev.Signature.Signature
-			prevPublicKey = prev.Signature.PublicKey
-			prevSignatureHash = calculateSignatureHash(prevSignature, prevPublicKey)
+			prevSignature := prev.Signature.Signature
+			prevPublicKey := prev.Signature.PublicKey
+			prevSignatureHash := calculateSignatureHash(prevSignature, prevPublicKey)
 			if prevSignatureHash != prev.Signature.SignatureHash {
-				log.Printf("RevisionSignature does not match in revision %s", prev.Metadata.VerificationHash)
+				log.Println("RevisionSignature does not match")
 				log.Println("Calculated:" + prevSignatureHash)
 				log.Println("Previous:" + prev.Signature.SignatureHash)
 				return false, errors.New("Previous signature hash doesn't match")
 			}
 			fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
 		}
-	} else {
-		if r.Context.HasPreviousSignature {
-			return false, errors.New("Revision has previous signature, but no previous revision provided to validate")
-		}
-		prevSignatureHash = ""
+	} else if r.Context.HasPreviousSignature {
+		return false, errors.New("Revision has previous signature, but no previous revision provided to validate")
+	}
+	return true, nil
+}
+
+func verifyWitness(r *api.Revision, prev *api.Revision) error {
+	if r.Witness == nil {
+		fmt.Printf("    %s Not witnessed\n", WARN)
+		return nil
 	}
 
 	// calculate and check prevWitnessHash from previous revision
 	if r.Context.HasPreviousWitness {
 		if prev.Witness == nil {
-			return false, errors.New("Previous witness data not found")
+			return errors.New("Previous witness data not found")
 		}
-		prevWitnessHash = calculateWitnessHash(
+		prevWitnessHash := calculateWitnessHash(
 			prev.Witness.DomainSnapshotGenesisHash,
 			prev.Witness.MerkleRoot,
 			prev.Witness.WitnessNetwork,
 			prev.Witness.WitnessEventTransactionHash)
 		if prevWitnessHash != prev.Witness.WitnessHash {
-			return false, errors.New("Witness hash doesn't match")
+			return errors.New("Witness hash doesn't match")
 		}
 	}
+	if !checkEtherScan(r) {
+		return errors.New("Error checking from etherscan.io")
+	}
+	return nil
+}
 
+func verifyVerificationHash(r *api.Revision, prev *api.Revision) error {
 	// calculate verification hash
-	verificationHash = calculateVerificationHash(r.Content.ContentHash, r.Metadata.MetadataHash, prevSignatureHash, prevWitnessHash)
+	prevSignatureHash := ""
+	prevWitnessHash := ""
+	if prev != nil {
+		if prev.Signature != nil {
+			prevSignatureHash = prev.Signature.SignatureHash
+		}
+		if prev.Witness != nil {
+			prevWitnessHash = prev.Witness.WitnessHash
+		}
+	}
+	verificationHash := calculateVerificationHash(r.Content.ContentHash, r.Metadata.MetadataHash, prevSignatureHash, prevWitnessHash)
 	if verificationHash != r.Metadata.VerificationHash {
 		if *verbose {
 			fmt.Println("  Actual content hash: ", r.Content.ContentHash)
@@ -383,9 +398,9 @@ func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
 			fmt.Println("  Expected verification hash: ", r.Metadata.VerificationHash)
 			fmt.Println("  Actual verification hash: ", verificationHash)
 		}
-		return false, errors.New("Verification hash doesn't match")
+		return errors.New("Verification hash doesn't match")
 	}
-	return true, nil
+	return nil
 }
 
 func jsonprint(f interface{}) {
@@ -432,13 +447,16 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		return false
 	}
 
-	if r.Witness == nil {
-		fmt.Printf("    %s Not witnessed\n", WARN)
-	} else {
-		if !verifyWitness(r) {
-			failure(r, "Witness")
-			return false
-		}
+	e = verifyWitness(r, prev)
+	if e != nil {
+		failure(r, "Witness")
+		return false
+	}
+
+	e = verifyVerificationHash(r, prev)
+	if e != nil {
+		failure(r, "Verification Hash")
+		return false
 	}
 
 	success(r)
