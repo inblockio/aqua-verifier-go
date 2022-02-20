@@ -285,8 +285,8 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 }
 
 func checkEtherScan(r *api.Revision) bool {
-	e := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
-	if e == nil {
+	err := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
+	if err == nil {
 		return true
 	}
 	return false
@@ -437,22 +437,22 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		return false
 	}
 
-	e := verifyPreviousSignature(r, prev)
-	if e != nil {
+	err := verifyPreviousSignature(r, prev)
+	if err != nil {
 		failure(r, "Signature")
-		fmt.Println(e)
+		fmt.Println(err)
 		return false
 	}
 
-	e = verifyWitness(r, prev)
-	if e != nil {
+	err = verifyWitness(r, prev)
+	if err != nil {
 		failure(r, "Witness")
 		return false
 	}
 
 	// fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
-	e = verifyVerificationHash(r, prev)
-	if e != nil {
+	err = verifyVerificationHash(r, prev)
+	if err != nil {
 		failure(r, "Verification Hash")
 		return false
 	}
