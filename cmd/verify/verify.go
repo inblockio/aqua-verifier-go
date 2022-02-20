@@ -8,13 +8,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/inblockio/aqua-verifier-go/api"
-	"golang.org/x/crypto/sha3"
 	"log"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/inblockio/aqua-verifier-go/api"
+	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -28,14 +29,14 @@ var (
 )
 
 const (
-	apiVersion = "0.3.0"
-	WARN = "⚠️"
-	CROSSMARK = "❌"
-	CHECKMARK = "✅"
+	apiVersion      = "0.3.0"
+	WARN            = "⚠️"
+	CROSSMARK       = "❌"
+	CHECKMARK       = "✅"
 	LOCKED_WITH_PEN = "🔏"
-	WATCH = "⌚"
-	BRANCH = "🌿"
-	FILE_GLYPH = "📄"
+	WATCH           = "⌚"
+	BRANCH          = "🌿"
+	FILE_GLYPH      = "📄"
 )
 
 func main() {
@@ -320,25 +321,21 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 	return false
 }
 
-func verifySignature(r *api.Revision, prev *api.Revision) (bool, error) {
+func verifyPreviousSignature(r *api.Revision, prev *api.Revision) error {
 	// calculate and check prevSignatureHash from previous revision
-	if prev != nil {
-		if r.Context.HasPreviousSignature {
-			prevSignature := prev.Signature.Signature
-			prevPublicKey := prev.Signature.PublicKey
-			prevSignatureHash := calculateSignatureHash(prevSignature, prevPublicKey)
-			if prevSignatureHash != prev.Signature.SignatureHash {
-				log.Println("RevisionSignature does not match")
-				log.Println("Calculated:" + prevSignatureHash)
-				log.Println("Previous:" + prev.Signature.SignatureHash)
-				return false, errors.New("Previous signature hash doesn't match")
-			}
-			fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
-		}
-	} else if r.Context.HasPreviousSignature {
-		return false, errors.New("Revision has previous signature, but no previous revision provided to validate")
+	if !r.Context.HasPreviousSignature {
+		return nil
 	}
-	return true, nil
+	if prev == nil {
+		return errors.New("Revision has previous signature, but no previous revision provided to validate")
+	}
+	prevSignature := prev.Signature.Signature
+	prevPublicKey := prev.Signature.PublicKey
+	prevSignatureHash := calculateSignatureHash(prevSignature, prevPublicKey)
+	if prevSignatureHash != prev.Signature.SignatureHash {
+		return errors.New("Previous signature hash doesn't match")
+	}
+	return nil
 }
 
 func verifyWitness(r *api.Revision, prev *api.Revision) error {
@@ -440,8 +437,8 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		return false
 	}
 
-	b, e := verifySignature(r, prev)
-	if !b || e != nil {
+	e := verifyPreviousSignature(r, prev)
+	if e != nil {
 		failure(r, "Signature")
 		fmt.Println(e)
 		return false
@@ -453,6 +450,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		return false
 	}
 
+	// fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
 	e = verifyVerificationHash(r, prev)
 	if e != nil {
 		failure(r, "Verification Hash")
@@ -485,7 +483,7 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 			fmt.Printf("Failure getting revision %s\n", cur)
 			return false
 		}
-		verificationSet[height - i - 1] = r
+		verificationSet[height-i-1] = r
 		cur = r.Metadata.PreviousVerificationHash
 	}
 
@@ -493,7 +491,7 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 	// verify each revision from oldest to newest
 	for i := 0; i < len(verificationSet); i++ {
 		revision := verificationSet[i]
-		fmt.Printf("%d. Verification of %s\n", i + 1, revision.Metadata.VerificationHash)
+		fmt.Printf("%d. Verification of %s\n", i+1, revision.Metadata.VerificationHash)
 		// this is the first (or only) element in the set to verify
 		if i == 0 {
 			if !verifyRevision(revision, nil) {
