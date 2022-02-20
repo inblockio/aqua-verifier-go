@@ -8,6 +8,7 @@ import (
 )
 
 func TestWasm(t *testing.T) {
+	t.Skip("Skipping WASM test for now.")
 	// Spawns a http server and browser to test the javascript (wasm) build of verify loads in console
 	// TODO: can automate using nodejs using go_js_wasm_exec, e.g.
 	// GOOS=js GOARCH=wasm go test -exec="$(go env GOROOT)/misc/wasm/go_js_wasm_exec"
