@@ -303,10 +303,8 @@ func checkmarkCrossmark(isCorrect bool) string {
 }
 
 func verifyContent(content *api.RevisionContent) bool {
-	if content.ContentHash == getHashSum(content.Content.Main+content.Content.SignatureSlot+content.Content.TransclusionHashes) {
-		return true
-	}
-	return false
+	actualHash := getHashSum(content.Content.Main + content.Content.SignatureSlot + content.Content.TransclusionHashes)
+	return content.ContentHash == actualHash
 }
 
 func formatRevisionInfo2HTML(server *api.ServerInfo, detail *api.Revision, verbose bool) {
