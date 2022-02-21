@@ -295,6 +295,13 @@ func checkEtherScan(r *api.Revision) bool {
 func printRevisionInfo(revision *api.Revision) {
 }
 
+func checkmarkCrossmark(isCorrect bool) string {
+	if isCorrect {
+		return CHECKMARK
+	}
+	return CROSSMARK
+}
+
 func verifyContent(content *api.RevisionContent) bool {
 	if content.ContentHash == getHashSum(content.Content.Main+content.Content.SignatureSlot+content.Content.TransclusionHashes) {
 		return true
