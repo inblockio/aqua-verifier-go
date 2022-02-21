@@ -432,7 +432,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	}
 
 	if !verifyContent(r.Content) {
-		failure(r, "Content")
+		failure(r, "Content hash doesn't match")
 		return false
 	}
 
