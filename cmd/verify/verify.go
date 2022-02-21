@@ -317,13 +317,7 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 	mh := calculateMetadataHash(r.Metadata.DomainId,
 		r.Metadata.Timestamp.String(),
 		r.Metadata.PreviousVerificationHash)
-	if mh == r.Metadata.MetadataHash {
-		return true
-	}
-	log.Printf("MetadataHash does not match in revision %s", r.Metadata.VerificationHash)
-	log.Println("Calculated:" + mh)
-	log.Println("Previous:" + r.Metadata.MetadataHash)
-	return false
+	return mh == r.Metadata.MetadataHash
 }
 
 func verifyPreviousSignature(r *api.Revision, prev *api.Revision) error {
@@ -423,7 +417,7 @@ func success(r *api.Revision) {
 }
 
 func failure(r *api.Revision, context string) {
-	log.Println("Failed to verify: ", context, r.Metadata.VerificationHash)
+	log.Println("Failed to verify: ", context)
 	if *verbose {
 		jsonprint(r.Metadata)
 		jsonprint(r.Witness)
@@ -433,7 +427,7 @@ func failure(r *api.Revision, context string) {
 
 func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	if !verifyRevisionMetadata(r) {
-		failure(r, "RevisionMetadata")
+		failure(r, "Metadata hash doesn't match")
 		return false
 	}
 
