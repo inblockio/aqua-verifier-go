@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -302,8 +303,25 @@ func checkmarkCrossmark(isCorrect bool) string {
 	return CROSSMARK
 }
 
+func getSortedKeys(m map[string]string) []string {
+	keys := make([]string, len(m))
+	i := 0
+	for key := range m {
+		keys[i] = key
+		i++
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 func verifyContent(content *api.RevisionContent) bool {
-	actualHash := getHashSum(content.Content.Main + content.Content.SignatureSlot + content.Content.TransclusionHashes)
+	wholeContent := ""
+	// We sort the keys by alphabetical order, just the way it is done for
+	// canonical JSON.
+	for _, key := range getSortedKeys(content.Content) {
+		wholeContent += content.Content[key]
+	}
+	actualHash := getHashSum(wholeContent)
 	return content.ContentHash == actualHash
 }
 

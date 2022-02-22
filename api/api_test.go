@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -63,8 +64,8 @@ func TestGetRevision(t *testing.T) {
 	require.NotNil(r.Content)
 	require.NotEqual(r.Content.ContentHash, "")
 	require.NotNil(r.Content.Content)
-	require.NotEqual(r.Content.Content.Main, "")
-	require.NotEqual(r.Content.Content.TransclusionHashes, "")
+	require.NotEqual(r.Content.Content["main"], "")
+	require.NotEqual(r.Content.Content["transclusion-hashes"], "")
 	require.NotNil(r.Metadata)
 	require.NotEqual(r.Metadata.DomainId, "")
 	require.NotEqual(r.Metadata.Timestamp, 0)

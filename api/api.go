@@ -93,18 +93,14 @@ type VerificationContext struct {
 	HasPreviousWitness   bool `json:"has_previous_witness"`
 }
 
-// ContentData holds the content body and transclusion hashes
-type ContentData struct {
-	Main               string `json:"main"`
-	TransclusionHashes string `json:"transclusion-hashes"`
-	SignatureSlot      string `json:"signature-slot"`
-}
-
 // RevisionContent holds the content and hash in a Revision
+// We use a map with dynamic keys instead of hardcoded keys for Content because
+// we want to future-proof it, so that future changes to Content keys does not
+// require a code change here.
 type RevisionContent struct {
-	RevId       int          `json:"rev_id"`
-	Content     *ContentData `json:"content"`
-	ContentHash string       `json:"content_hash"`
+	RevId       int               `json:"rev_id"`
+	Content     map[string]string `json:"content"`
+	ContentHash string            `json:"content_hash"`
 }
 
 // Timestamp holds a timestamp in ??? format
