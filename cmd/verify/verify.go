@@ -15,6 +15,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/inblockio/aqua-verifier-go/api"
 	"golang.org/x/crypto/sha3"
 )
@@ -381,6 +384,32 @@ func verifyWitness(r *api.Revision, prev *api.Revision) error {
 	return nil
 }
 
+func verifyCurrentSignature(r *api.Revision) (bool, string) {
+	if r.Signature == nil || r.Signature.Signature == "" {
+		return true, "MISSING"
+	}
+	verificationHash := r.Metadata.VerificationHash
+	paddedMessage := []byte("I sign the following page verification_hash: [0x" + verificationHash + "]")
+	signature, err := hexutil.Decode(r.Signature.Signature)
+	if err != nil {
+		return false, "INVALID"
+	}
+	signature[crypto.RecoveryIDOffset] -= 27 // Transform yellow paper V from 27/28 to 0/1
+	sigPublicKey, err := crypto.Ecrecover(accounts.TextHash(paddedMessage), signature)
+	if err != nil {
+		return false, "INVALID"
+	}
+	ecdsaPub, err := crypto.UnmarshalPubkey(sigPublicKey)
+	if err != nil {
+		return false, "INVALID"
+	}
+	sigAddress := crypto.PubkeyToAddress(*ecdsaPub).Hex()
+	if strings.ToLower(sigAddress) != strings.ToLower(r.Signature.WalletAddress) {
+		return false, "INVALID"
+	}
+	return true, "VALID"
+}
+
 func verifyVerificationHash(r *api.Revision, prev *api.Revision) error {
 	// calculate verification hash
 	prevSignatureHash := ""
@@ -467,7 +496,16 @@ func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 		return false
 	}
 
-	// fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, prev.Signature.WalletAddress)
+	signatureIsCorrect, status := verifyCurrentSignature(r)
+	if signatureIsCorrect {
+		if status == "VALID" {
+			fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, r.Signature.WalletAddress)
+		} else {
+			fmt.Printf("    %s Not signed\n", WARN)
+		}
+	} else {
+		fmt.Printf("    %s%s Invalid signature\n", CROSSMARK, LOCKED_WITH_PEN)
+	}
 	err = verifyVerificationHash(r, prev)
 	if err != nil {
 		failure(r, "Verification Hash")
