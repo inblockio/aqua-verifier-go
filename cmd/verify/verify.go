@@ -455,7 +455,7 @@ func jsonprint(f interface{}) {
 }
 
 func success(r *api.Revision) {
-	fmt.Printf("  %s Verified\n", CHECKMARK)
+	fmt.Printf("  %s Verification hash matches\n", CHECKMARK)
 	if *verbose {
 		jsonprint(r.Metadata)
 		jsonprint(r.Witness)
