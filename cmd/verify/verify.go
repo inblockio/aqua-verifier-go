@@ -41,7 +41,28 @@ const (
 	WATCH           = "⌚"
 	BRANCH          = "🌿"
 	FILE_GLYPH      = "📄"
+	// Verification status
+	INVALID_VERIFICATION_STATUS  = "INVALID"
+	VERIFIED_VERIFICATION_STATUS = "VERIFIED"
+	ERROR_VERIFICATION_STATUS    = "ERROR"
 )
+
+type RevisionVerificationStatus struct {
+	Content      bool
+	Metadata     bool
+	Signature    string
+	Witness      string
+	Verification string
+	File         string
+}
+
+type RevisionVerificationResult struct {
+	VerificationHash string
+	Status           *RevisionVerificationStatus
+	WitnessResult    string
+	FileHash         string
+	Error            error
+}
 
 func main() {
 
@@ -160,12 +181,17 @@ func verifyPage(page string) bool {
 	fmt.Println("Verifying", height, "Revisions for", page)
 	// verify each revision from oldest to newest
 	for i := 0; i < len(verificationSet)-1; i += 1 {
-		// this is the last (or only) element in the set to verify
+		var prev *api.Revision
 		if i == len(verificationSet) {
-			if !verifyRevision(verificationSet[i], nil) {
-				return false
-			}
-		} else if !verifyRevision(verificationSet[i], verificationSet[i+1]) {
+			// this is the last (or only) element in the set to verify
+			prev = nil
+		} else {
+			prev = verificationSet[i+1]
+		}
+		revision := verificationSet[i]
+		isCorrect, result := verifyRevision(revision, prev)
+		printRevisionInfo(result, revision)
+		if !isCorrect {
 			return false
 		}
 	}
@@ -223,7 +249,8 @@ func redify(isHtml, content string) {
 func htmlDimify(content string) {
 }
 
-func log_red(content string) {
+func logRed(content string) {
+	fmt.Println(content)
 }
 
 func log_yellow(content string) {
@@ -296,7 +323,36 @@ func checkEtherScan(r *api.Revision) bool {
 	return false
 }
 
-func printRevisionInfo(revision *api.Revision) {
+func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
+	if result.Error != nil {
+		logRed(result.Error.Error())
+		return
+	}
+
+	if result.Status.Verification == INVALID_VERIFICATION_STATUS {
+		logRed("  " + CROSSMARK + " Verification hash doesn't match")
+		return
+	}
+	fmt.Printf("  %s Verification hash matches\n", CHECKMARK)
+
+	if *verbose {
+		fmt.Println("TODO")
+	}
+
+	if result.Status.Witness != "MISSING" {
+		fmt.Println(result.WitnessResult)
+	} else {
+		fmt.Printf("    %s Not witnessed\n", WARN)
+	}
+
+	switch result.Status.Signature {
+	case "VALID":
+		fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, r.Signature.WalletAddress)
+	case "MISSING":
+		fmt.Printf("    %s Not signed\n", WARN)
+	case "INVALID":
+		logRed("    " + CROSSMARK + LOCKED_WITH_PEN + "Invalid signature\n")
+	}
 }
 
 func checkmarkCrossmark(isCorrect bool) string {
@@ -358,16 +414,15 @@ func verifyPreviousSignature(r *api.Revision, prev *api.Revision) error {
 	return nil
 }
 
-func verifyWitness(r *api.Revision, prev *api.Revision) error {
+func verifyWitness(r *api.Revision, prev *api.Revision) (string, string) {
 	if r.Witness == nil {
-		fmt.Printf("    %s Not witnessed\n", WARN)
-		return nil
+		return "MISSING", ""
 	}
 
 	// calculate and check prevWitnessHash from previous revision
 	if r.Context.HasPreviousWitness {
 		if prev.Witness == nil {
-			return errors.New("Previous witness data not found")
+			return "INVALID", "Previous witness data not found"
 		}
 		prevWitnessHash := calculateWitnessHash(
 			prev.Witness.DomainSnapshotGenesisHash,
@@ -375,13 +430,13 @@ func verifyWitness(r *api.Revision, prev *api.Revision) error {
 			prev.Witness.WitnessNetwork,
 			prev.Witness.WitnessEventTransactionHash)
 		if prevWitnessHash != prev.Witness.WitnessHash {
-			return errors.New("Witness hash doesn't match")
+			return "INVALID", "Witness hash doesn't match"
 		}
 	}
 	if !checkEtherScan(r) {
-		return errors.New("Error checking from etherscan.io")
+		return "INVALID", "Error checking from etherscan.io"
 	}
-	return nil
+	return "VALID", "    Witness is verified"
 }
 
 func verifyCurrentSignature(r *api.Revision) (bool, string) {
@@ -454,66 +509,57 @@ func jsonprint(f interface{}) {
 	fmt.Printf("%s\n", j)
 }
 
-func success(r *api.Revision) {
-	fmt.Printf("  %s Verification hash matches\n", CHECKMARK)
-	if *verbose {
-		jsonprint(r.Metadata)
-		jsonprint(r.Witness)
-		jsonprint(r.Signature)
-	}
+func NewRevisionVerificationResult() *RevisionVerificationResult {
+	rvr := new(RevisionVerificationResult)
+	// Populate with default values
+	rvr.Status = new(RevisionVerificationStatus)
+	rvr.Status.Signature = "MISSING"
+	rvr.Status.Witness = "MISSING"
+	rvr.Status.Verification = INVALID_VERIFICATION_STATUS
+	rvr.Status.File = "MISSING"
+	return rvr
 }
 
-func failure(r *api.Revision, context string) {
-	log.Println("Failed to verify: ", context)
-	if *verbose {
-		jsonprint(r.Metadata)
-		jsonprint(r.Witness)
-		jsonprint(r.Signature)
-	}
-}
+func verifyRevision(r *api.Revision, prev *api.Revision) (bool, *RevisionVerificationResult) {
+	result := NewRevisionVerificationResult()
 
-func verifyRevision(r *api.Revision, prev *api.Revision) bool {
 	if !verifyRevisionMetadata(r) {
-		failure(r, "Metadata hash doesn't match")
-		return false
+		result.Error = errors.New("Metadata hash doesn't match")
+		return false, result
 	}
+	// Mark metadata as correct
+	result.Status.Metadata = true
 
 	if !verifyContent(r.Content) {
-		failure(r, "Content hash doesn't match")
-		return false
+		result.Error = errors.New("Content hash doesn't match")
+		return false, result
 	}
+	// Mark content as correct
+	result.Status.Content = true
 
 	err := verifyPreviousSignature(r, prev)
 	if err != nil {
-		failure(r, "Signature")
-		fmt.Println(err)
-		return false
+		result.Error = err
+		return false, result
 	}
 
-	err = verifyWitness(r, prev)
-	if err != nil {
-		failure(r, "Witness")
-		return false
-	}
+	witnessStatus, witnessResult := verifyWitness(r, prev)
+	result.Status.Witness = witnessStatus
+	result.WitnessResult = witnessResult
+	witnessIsCorrect := witnessStatus != "INVALID"
 
 	signatureIsCorrect, status := verifyCurrentSignature(r)
-	if signatureIsCorrect {
-		if status == "VALID" {
-			fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, r.Signature.WalletAddress)
-		} else {
-			fmt.Printf("    %s Not signed\n", WARN)
-		}
-	} else {
-		fmt.Printf("    %s%s Invalid signature\n", CROSSMARK, LOCKED_WITH_PEN)
-	}
+	result.Status.Signature = status
+
 	err = verifyVerificationHash(r, prev)
 	if err != nil {
-		failure(r, "Verification Hash")
-		return false
+		// TODO make this interface consistent with other error formatting.
+		result.Status.Verification = INVALID_VERIFICATION_STATUS
+		return false, result
 	}
+	result.Status.Verification = VERIFIED_VERIFICATION_STATUS
 
-	success(r)
-	return true
+	return signatureIsCorrect && witnessIsCorrect, result
 }
 
 func calculateStatus(count, totalLength int) {
@@ -547,12 +593,16 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 	for i := 0; i < len(verificationSet); i++ {
 		revision := verificationSet[i]
 		fmt.Printf("%d. Verification of %s\n", i+1, revision.Metadata.VerificationHash)
-		// this is the first (or only) element in the set to verify
+		var prev *api.Revision
 		if i == 0 {
-			if !verifyRevision(revision, nil) {
-				return false
-			}
-		} else if !verifyRevision(revision, verificationSet[i-1]) {
+			// this is the first (or only) element in the set to verify
+			prev = nil
+		} else {
+			prev = verificationSet[i-1]
+		}
+		isCorrect, result := verifyRevision(revision, prev)
+		printRevisionInfo(result, revision)
+		if !isCorrect {
 			return false
 		}
 	}
