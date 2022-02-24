@@ -414,25 +414,30 @@ func verifyPreviousSignature(r *api.Revision, prev *api.Revision) error {
 	return nil
 }
 
-func verifyWitness(r *api.Revision, prev *api.Revision) (string, string) {
+func verifyPreviousWitness(r *api.Revision, prev *api.Revision) error {
+	// calculate and check prevWitnessHash from previous revision
+	if !r.Context.HasPreviousWitness {
+		return nil
+	}
+	if prev.Witness == nil {
+		return errors.New("Previous witness data not found")
+	}
+	prevWitnessHash := calculateWitnessHash(
+		prev.Witness.DomainSnapshotGenesisHash,
+		prev.Witness.MerkleRoot,
+		prev.Witness.WitnessNetwork,
+		prev.Witness.WitnessEventTransactionHash)
+	if prevWitnessHash != prev.Witness.WitnessHash {
+		return errors.New("Previous witness hash doesn't match")
+	}
+	return nil
+}
+
+func verifyWitness(r *api.Revision) (string, string) {
 	if r.Witness == nil {
 		return "MISSING", ""
 	}
 
-	// calculate and check prevWitnessHash from previous revision
-	if r.Context.HasPreviousWitness {
-		if prev.Witness == nil {
-			return "INVALID", "Previous witness data not found"
-		}
-		prevWitnessHash := calculateWitnessHash(
-			prev.Witness.DomainSnapshotGenesisHash,
-			prev.Witness.MerkleRoot,
-			prev.Witness.WitnessNetwork,
-			prev.Witness.WitnessEventTransactionHash)
-		if prevWitnessHash != prev.Witness.WitnessHash {
-			return "INVALID", "Witness hash doesn't match"
-		}
-	}
 	if !checkEtherScan(r) {
 		return "INVALID", "Error checking from etherscan.io"
 	}
@@ -543,7 +548,13 @@ func verifyRevision(r *api.Revision, prev *api.Revision) (bool, *RevisionVerific
 		return false, result
 	}
 
-	witnessStatus, witnessResult := verifyWitness(r, prev)
+	err = verifyPreviousWitness(r, prev)
+	if err != nil {
+		result.Error = err
+		return false, result
+	}
+
+	witnessStatus, witnessResult := verifyWitness(r)
 	result.Status.Witness = witnessStatus
 	result.WitnessResult = witnessResult
 	witnessIsCorrect := witnessStatus != "INVALID"
