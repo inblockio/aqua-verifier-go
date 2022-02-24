@@ -23,13 +23,13 @@ import (
 )
 
 var (
-	verbose   = flag.Bool("v", false, "Verbose")
-	endpoint  = flag.String("server", "http://localhost:9352", "<The url of the server, e.g. https://pkc.inblock.io>")
-	verify    = flag.Bool("ignore-merkle-proof", false, "Ignore verifying the witness merkle proof of each revision")
-	authToken = flag.String("token", "", "(Optional) OAuth2 access token to access the API")
-	dataFile  = flag.String("file", "", "(If present) The file to read from for the data")
-	depth     = flag.Int("depth", -1, "(Optional) Depth to follow verification chain. By default, verifies all revisions")
-	ap        *api.AquaProtocol
+	verbose           = flag.Bool("v", false, "Verbose")
+	endpoint          = flag.String("server", "http://localhost:9352", "<The url of the server, e.g. https://pkc.inblock.io>")
+	ignoreMerkleProof = flag.Bool("ignore-merkle-proof", false, "Ignore verifying the witness merkle proof of each revision")
+	authToken         = flag.String("token", "", "(Optional) OAuth2 access token to access the API")
+	dataFile          = flag.String("file", "", "(If present) The file to read from for the data")
+	depth             = flag.Int("depth", -1, "(Optional) Depth to follow verification chain. By default, verifies all revisions")
+	ap                *api.AquaProtocol
 )
 
 const (
@@ -83,7 +83,7 @@ func main() {
 	} else {
 		// else construct a url from the endpoint and page name
 		title := flag.Args()[0]
-		if verifyPage(title) {
+		if verifyPage(title, true) {
 			fmt.Println("Verified:", title)
 		} else {
 			fmt.Println("Failed to verify:", title)
@@ -116,12 +116,12 @@ func verifyData(fileName string) bool {
 	}
 
 	for _, r := range data.Pages {
-		verifyOfflineData(r, *verbose, *verify)
+		verifyOfflineData(r, *verbose, !*ignoreMerkleProof)
 	}
 	return true
 }
 
-func verifyPage(page string) bool {
+func verifyPage(page string, doVerifyMerkleProof bool) bool {
 	var err error
 	ap, err = api.NewAPI(*endpoint, *authToken)
 	if err != nil {
@@ -189,7 +189,7 @@ func verifyPage(page string) bool {
 			prev = verificationSet[i+1]
 		}
 		revision := verificationSet[i]
-		isCorrect, result := verifyRevision(revision, prev)
+		isCorrect, result := verifyRevision(revision, prev, doVerifyMerkleProof)
 		printRevisionInfo(result, revision)
 		if !isCorrect {
 			return false
@@ -311,11 +311,6 @@ func checkAPIVersionCompatibility(ap *api.AquaProtocol) bool {
 	return false
 }
 
-func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
-	panic("NotImplemented")
-	return false
-}
-
 func checkEtherScan(r *api.Revision) error {
 	return api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
 }
@@ -337,7 +332,7 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 	}
 
 	if result.Status.Witness != "MISSING" {
-		fmt.Println(result.WitnessResult)
+		fmt.Printf(result.WitnessResult)
 	} else {
 		fmt.Printf("    %s Not witnessed\n", WARN)
 	}
@@ -430,7 +425,51 @@ func verifyPreviousWitness(r *api.Revision, prev *api.Revision) error {
 	return nil
 }
 
-func verifyWitness(r *api.Revision) (string, string) {
+func verifyMerkleIntegrity(merkleBranch []*api.MerkleNode, verificationHash string) bool {
+	if len(merkleBranch) == 0 {
+		return false
+	}
+
+	var prevSuccessor string
+	for _, node := range merkleBranch {
+		leaves := map[string]bool{
+			node.LeftLeaf:  true,
+			node.RightLeaf: true,
+		}
+		if prevSuccessor != "" {
+			if !leaves[prevSuccessor] {
+				//console.log("Expected leaf", prevSuccessor)
+				//console.log("Actual leaves", leaves)
+				return false
+			}
+		} else {
+			// This means we are at the beginning of the loop.
+			if !leaves[verificationHash] {
+				// In the beginning, either the left or right leaf must match the
+				// verification hash.
+				return false
+			}
+		}
+
+		var calculatedSuccessor string
+		if node.LeftLeaf == "" {
+			calculatedSuccessor = node.RightLeaf
+		} else if node.RightLeaf == "" {
+			calculatedSuccessor = node.LeftLeaf
+		} else {
+			calculatedSuccessor = getHashSum(node.LeftLeaf + node.RightLeaf)
+		}
+		if calculatedSuccessor != node.Successor {
+			//console.log("Expected successor", calculatedSuccessor)
+			//console.log("Actual successor", node.successor)
+			return false
+		}
+		prevSuccessor = node.Successor
+	}
+	return true
+}
+
+func verifyWitness(r *api.Revision, doVerifyMerkleProof bool) (string, string) {
 	if r.Witness == nil {
 		return "MISSING", ""
 	}
@@ -447,7 +486,25 @@ func verifyWitness(r *api.Revision) (string, string) {
 		result += space4 + err.Error() + " " + suffix
 		return "INVALID", result
 	}
-	result += space4 + CHECKMARK + WATCH + "Witness event verification hash has been verified on " + suffix
+	result += space4 + CHECKMARK + WATCH + "Witness event verification hash has been verified on " + suffix + "\n"
+
+	// At this point, we know that the witness matches.
+	if doVerifyMerkleProof {
+		// Only verify the witness merkle proof when verifyWitness is successful,
+		// because this step is expensive.
+		verificationHash := r.Metadata.VerificationHash
+		if verificationHash == r.Witness.DomainSnapshotGenesisHash {
+			// Corner case when the page is a Domain Snapshot.
+			result += space4 + CHECKMARK + "Is a Domain Snapshot, hence not part of Merkle Proof\n"
+		} else {
+			if verifyMerkleIntegrity(r.Witness.MerkleProof, verificationHash) {
+				result += space4 + CHECKMARK + BRANCH + "Witness Merkle Proof is OK\n"
+			} else {
+				result += space4 + CHECKMARK + BRANCH + "Witness Merkle Proof is corrupted\n"
+				return "INVALID", result
+			}
+		}
+	}
 	return "VALID", result
 }
 
@@ -521,7 +578,7 @@ func jsonprint(f interface{}) {
 	fmt.Printf("%s\n", j)
 }
 
-func NewRevisionVerificationResult() *RevisionVerificationResult {
+func NewRevisionVerificationResult(verificationHash string) *RevisionVerificationResult {
 	rvr := new(RevisionVerificationResult)
 	// Populate with default values
 	rvr.Status = new(RevisionVerificationStatus)
@@ -529,11 +586,12 @@ func NewRevisionVerificationResult() *RevisionVerificationResult {
 	rvr.Status.Witness = "MISSING"
 	rvr.Status.Verification = INVALID_VERIFICATION_STATUS
 	rvr.Status.File = "MISSING"
+	rvr.VerificationHash = verificationHash
 	return rvr
 }
 
-func verifyRevision(r *api.Revision, prev *api.Revision) (bool, *RevisionVerificationResult) {
-	result := NewRevisionVerificationResult()
+func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof bool) (bool, *RevisionVerificationResult) {
+	result := NewRevisionVerificationResult(r.Metadata.VerificationHash)
 
 	if !verifyRevisionMetadata(r) {
 		result.Error = errors.New("Metadata hash doesn't match")
@@ -561,7 +619,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision) (bool, *RevisionVerific
 		return false, result
 	}
 
-	witnessStatus, witnessResult := verifyWitness(r)
+	witnessStatus, witnessResult := verifyWitness(r, doVerifyMerkleProof)
 	result.Status.Witness = witnessStatus
 	result.WitnessResult = witnessResult
 	witnessIsCorrect := witnessStatus != "INVALID"
@@ -618,7 +676,7 @@ func verifyOfflineData(data *api.OfflineRevisionInfo, verbose bool, doVerifyMerk
 		} else {
 			prev = verificationSet[i-1]
 		}
-		isCorrect, result := verifyRevision(revision, prev)
+		isCorrect, result := verifyRevision(revision, prev, doVerifyMerkleProof)
 		printRevisionInfo(result, revision)
 		if !isCorrect {
 			return false
