@@ -329,6 +329,10 @@ func CheckEtherscan(network, txHash, eventHash string) error {
 	if err != nil {
 		return err
 	}
+
+	// To avoid IP banning by etherscan.io
+	time.Sleep(300 * time.Millisecond)
+
 	// read response
 	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
