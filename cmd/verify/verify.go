@@ -268,7 +268,8 @@ func formatDBTimestamp(ts time.Time) {
 func getElapsedTime(start time.Time) {
 }
 
-func shortenHash(hash string) {
+func shortenHash(hash string) string {
+	return hash[:6] + "..." + hash[len(hash)-6:]
 }
 
 func clipboardifyHash(hash string) {
@@ -315,12 +316,8 @@ func verifyMerkleIntegrity(merkleBranch string, verificationHash string) bool {
 	return false
 }
 
-func checkEtherScan(r *api.Revision) bool {
-	err := api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
-	if err == nil {
-		return true
-	}
-	return false
+func checkEtherScan(r *api.Revision) error {
+	return api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
 }
 
 func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
@@ -438,10 +435,20 @@ func verifyWitness(r *api.Revision) (string, string) {
 		return "MISSING", ""
 	}
 
-	if !checkEtherScan(r) {
-		return "INVALID", "Error checking from etherscan.io"
+	space4 := "    "
+	wh := " " + shortenHash(r.Witness.WitnessHash)
+	result := "  Witness event" + wh + " detected\n"
+
+	txHash := r.Witness.WitnessEventTransactionHash
+	result += space4 + "Transaction hash: " + txHash + "\n"
+
+	suffix := r.Witness.WitnessNetwork + " via etherscan.io"
+	if err := checkEtherScan(r); err != nil {
+		result += space4 + err.Error() + " " + suffix
+		return "INVALID", result
 	}
-	return "VALID", "    Witness is verified"
+	result += space4 + CHECKMARK + WATCH + "Witness event verification hash has been verified on " + suffix
+	return "VALID", result
 }
 
 func verifyCurrentSignature(r *api.Revision) (bool, string) {
