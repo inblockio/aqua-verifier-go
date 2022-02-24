@@ -41,10 +41,18 @@ const (
 	WATCH           = "⌚"
 	BRANCH          = "🌿"
 	FILE_GLYPH      = "📄"
+	space4          = "    "
 	// Verification status
 	INVALID_VERIFICATION_STATUS  = "INVALID"
 	VERIFIED_VERIFICATION_STATUS = "VERIFIED"
 	ERROR_VERIFICATION_STATUS    = "ERROR"
+	// https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
+	Reset    = "\x1b[0m"
+	Dim      = "\x1b[2m"
+	FgRed    = "\x1b[31m"
+	FgYellow = "\x1b[33m"
+	FgWhite  = "\x1b[37m"
+	BgGreen  = "\x1b[42m"
 )
 
 type RevisionVerificationStatus struct {
@@ -256,7 +264,8 @@ func logRed(content string) {
 func log_yellow(content string) {
 }
 
-func log_dim(content string) {
+func logDim(content string) {
+	fmt.Println(Dim + content + Reset)
 }
 
 func formatMwTimestamp(ts time.Time) {
@@ -334,14 +343,14 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 	if result.Status.Witness != "MISSING" {
 		fmt.Printf(result.WitnessResult)
 	} else {
-		fmt.Printf("    %s Not witnessed\n", WARN)
+		logDim(space4 + WARN + " Not witnessed")
 	}
 
 	switch result.Status.Signature {
 	case "VALID":
 		fmt.Printf("    %s%s Valid signature from wallet: %s\n", CHECKMARK, LOCKED_WITH_PEN, r.Signature.WalletAddress)
 	case "MISSING":
-		fmt.Printf("    %s Not signed\n", WARN)
+		logDim(space4 + WARN + " Not signed")
 	case "INVALID":
 		logRed("    " + CROSSMARK + LOCKED_WITH_PEN + "Invalid signature\n")
 	}
@@ -474,7 +483,6 @@ func verifyWitness(r *api.Revision, doVerifyMerkleProof bool) (string, string) {
 		return "MISSING", ""
 	}
 
-	space4 := "    "
 	wh := " " + shortenHash(r.Witness.WitnessHash)
 	result := "  Witness event" + wh + " detected\n"
 
