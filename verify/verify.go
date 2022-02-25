@@ -97,7 +97,7 @@ func VerifyData(fileName string, ignoreMerkleProof bool, depth int) bool {
 	}
 
 	for _, r := range data.Pages {
-		verifyOfflineData(r, !ignoreMerkleProof, depth)
+		VerifyOfflineData(r, !ignoreMerkleProof, depth)
 	}
 	return true
 }
@@ -723,8 +723,8 @@ func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof boo
 func calculateStatus(count, totalLength int) {
 }
 
-// verifyOfflineData verifies all revisions of a page.
-func verifyOfflineData(data *api.OfflineRevisionInfo, doVerifyMerkleProof bool, depth int) bool {
+// VerifyOfflineData verifies all revisions of a page.
+func VerifyOfflineData(data *api.OfflineRevisionInfo, doVerifyMerkleProof bool, depth int) bool {
 	var height int
 	if depth == -1 || depth > len(data.Revisions) {
 		height = len(data.Revisions)
