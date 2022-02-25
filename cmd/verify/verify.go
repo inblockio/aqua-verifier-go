@@ -418,6 +418,7 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 
 	fmt.Printf("  Elapsed: %.2f s\n", result.Elapsed.Seconds())
 	fmt.Println("  Timestamp:", formatDBTimestamp(r.Metadata.Timestamp.Time))
+	fmt.Println("  Domain ID:", r.Metadata.DomainId)
 	if result.Status.Verification == INVALID_VERIFICATION_STATUS {
 		logRed("  " + CROSSMARK + " Verification hash doesn't match")
 		return
