@@ -26,6 +26,7 @@ const (
 	// etherscan endpoint regular expression and seperator for scraping output
 	etherscanRegexp = `<span id='rawinput'.+?>(.+?)<\/span>`
 	ethMethodId     = "0x9cef4ea1"
+	Version         = "0.3.0"
 )
 
 var (
