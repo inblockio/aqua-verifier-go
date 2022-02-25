@@ -70,6 +70,7 @@ type RevisionVerificationResult struct {
 	WitnessResult    *WitnessResult
 	FileHash         string
 	Error            error
+	Elapsed          time.Duration
 }
 
 type WitnessResult struct {
@@ -415,7 +416,8 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 		return
 	}
 
-	fmt.Println("  Timestamp: ", formatDBTimestamp(r.Metadata.Timestamp.Time))
+	fmt.Printf("  Elapsed: %.2f s\n", result.Elapsed.Seconds())
+	fmt.Println("  Timestamp:", formatDBTimestamp(r.Metadata.Timestamp.Time))
 	if result.Status.Verification == INVALID_VERIFICATION_STATUS {
 		logRed("  " + CROSSMARK + " Verification hash doesn't match")
 		return
@@ -714,7 +716,7 @@ func NewRevisionVerificationResult(verificationHash string) *RevisionVerificatio
 	return rvr
 }
 
-func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof bool) (bool, *RevisionVerificationResult) {
+func verifyRevisionWithoutElapsed(r *api.Revision, prev *api.Revision, doVerifyMerkleProof bool) (bool, *RevisionVerificationResult) {
 	result := NewRevisionVerificationResult(r.Metadata.VerificationHash)
 
 	if !verifyRevisionMetadata(r) {
@@ -760,6 +762,15 @@ func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof boo
 	result.Status.Verification = VERIFIED_VERIFICATION_STATUS
 
 	return signatureIsCorrect && witnessIsCorrect, result
+}
+
+func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof bool) (bool, *RevisionVerificationResult) {
+	// Wrap verifyRevisionWithoutElapsed so that it contains elapsed info.
+	elapsedStart := time.Now()
+	isCorrect, result := verifyRevisionWithoutElapsed(r, prev, doVerifyMerkleProof)
+	elapsed := time.Since(elapsedStart)
+	result.Elapsed = elapsed
+	return isCorrect, result
 }
 
 func calculateStatus(count, totalLength int) {
