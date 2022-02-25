@@ -1,5 +1,7 @@
 // license ..
 
+//+build !js
+
 package main
 
 import (

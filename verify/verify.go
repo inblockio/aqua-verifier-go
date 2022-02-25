@@ -96,7 +96,7 @@ func VerifyData(fileName string, ignoreMerkleProof bool, depth int) bool {
 	}
 
 	for _, r := range data.Pages {
-		verifyOfflineData(r, !ignoreMerkleProof, depth)
+		VerifyOfflineData(r, !ignoreMerkleProof, depth)
 	}
 	return true
 }
@@ -723,8 +723,8 @@ func getVerificationSet(data *api.OfflineRevisionInfo, depth int) ([]*api.Revisi
 	return verificationSet, height, nil
 }
 
-// verifyOfflineData verifies all revisions of a page.
-func verifyOfflineData(data *api.OfflineRevisionInfo, doVerifyMerkleProof bool, depth int) bool {
+// VerifyOfflineData verifies all revisions of a page.
+func VerifyOfflineData(data *api.OfflineRevisionInfo, doVerifyMerkleProof bool, depth int) bool {
 	verificationSet, height, err := getVerificationSet(data, depth)
 	if err != nil {
 		fmt.Println(err)
