@@ -293,7 +293,8 @@ func logDim(content string) {
 func formatMwTimestamp(ts time.Time) {
 }
 
-func formatDBTimestamp(ts time.Time) {
+func formatDBTimestamp(ts time.Time) string {
+	return ts.Format("Jan 2, 2006, 3:04:05 PM UTC")
 }
 
 func getElapsedTime(start time.Time) {
@@ -414,6 +415,7 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 		return
 	}
 
+	fmt.Println("  Timestamp: ", formatDBTimestamp(r.Metadata.Timestamp.Time))
 	if result.Status.Verification == INVALID_VERIFICATION_STATUS {
 		logRed("  " + CROSSMARK + " Verification hash doesn't match")
 		return
