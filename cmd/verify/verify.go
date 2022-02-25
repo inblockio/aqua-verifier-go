@@ -67,9 +67,30 @@ type RevisionVerificationStatus struct {
 type RevisionVerificationResult struct {
 	VerificationHash string
 	Status           *RevisionVerificationStatus
-	WitnessResult    string
+	WitnessResult    *WitnessResult
 	FileHash         string
 	Error            error
+}
+
+type WitnessResult struct {
+	WitnessHash                        string
+	TxHash                             string
+	WitnessNetwork                     string
+	EtherscanResult                    string
+	EtherscanErrorMessage              string
+	ActualWitnessEventVerificationHash string
+	WitnessEventVHMatches              bool
+	// `extra` is populated with useful info when the witness event verification
+	// doesn't match.
+	Extra               *WitnessResultExtra
+	DoVerifyMerkleProof bool
+	MerkleProofStatus   string
+}
+
+type WitnessResultExtra struct {
+	DomainSnapshotGenesisHash    string
+	MerkleRoot                   string
+	WitnessEventVerificationHash string
 }
 
 func main() {
@@ -242,7 +263,8 @@ func validateTitle(title string) string {
 func formatHTTPError(response, message string) {
 }
 
-func cliRedify(content string) {
+func cliRedify(content string) string {
+	return FgRed + content + Reset
 }
 
 func cliYellowfy(content string) {
@@ -324,6 +346,68 @@ func checkEtherScan(r *api.Revision) error {
 	return api.CheckEtherscan(r.Witness.WitnessNetwork, r.Witness.WitnessEventTransactionHash, r.Witness.WitnessEventVerificationHash)
 }
 
+func printWitnessInfo(result *RevisionVerificationResult) {
+	if result.Status.Witness == "MISSING" {
+		logDim(space4 + WARN + " Not witnessed")
+		return
+	}
+
+	space2 := "  "
+	wr := result.WitnessResult
+	wh := shortenHash(wr.WitnessHash)
+	witOut := space2 + "Witness event " + wh + " detected"
+	witOut += "\n" + space4 + "Transaction hash: " + wr.TxHash
+	suffix := " on " + wr.WitnessNetwork + " via etherscan.io"
+	if wr.EtherscanResult == "true" {
+		witOut += "\n" + space4 + CHECKMARK + WATCH + "Witness event verification hash has been verified" + suffix
+	} else if wr.EtherscanResult == "false" {
+		witOut += cliRedify(
+			"\n" + space4 + CROSSMARK + WATCH + "Witness event verification hash does not match" + suffix,
+		)
+	} else {
+		witOut += cliRedify(
+			"\n" + space4 + CROSSMARK + WATCH + wr.EtherscanErrorMessage + suffix,
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Error code: " + wr.EtherscanResult,
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Verify manually: " + wr.ActualWitnessEventVerificationHash,
+		)
+	}
+	if !wr.WitnessEventVHMatches {
+		witOut += cliRedify(
+			"\n" + space4 + CROSSMARK +
+				"Witness event verification hash doesn't match",
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Domain Snapshot genesis hash: " + wr.Extra.DomainSnapshotGenesisHash,
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Merkle root: " + wr.Extra.MerkleRoot,
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Expected: " + wr.Extra.WitnessEventVerificationHash,
+		)
+		witOut += cliRedify(
+			"\n" + space4 + "Actual: " + wr.ActualWitnessEventVerificationHash,
+		)
+	}
+
+	if wr.DoVerifyMerkleProof && wr.MerkleProofStatus != "" {
+		switch wr.MerkleProofStatus {
+		case "DOMAIN_SNAPSHOT":
+			witOut += "\n" + space4 + CHECKMARK + "Is a Domain Snapshot, hence not part of Merkle Proof"
+		case "VALID":
+			witOut += "\n" + space4 + CHECKMARK + BRANCH + "Witness Merkle Proof is OK"
+		default:
+			witOut += "\n" + space4 + CROSSMARK + BRANCH + "Witness Merkle Proof is corrupted"
+		}
+	}
+
+	fmt.Println(witOut)
+}
+
 func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 	if result.Error != nil {
 		logRed(result.Error.Error())
@@ -340,11 +424,7 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 		fmt.Println("TODO")
 	}
 
-	if result.Status.Witness != "MISSING" {
-		fmt.Printf(result.WitnessResult)
-	} else {
-		logDim(space4 + WARN + " Not witnessed")
-	}
+	printWitnessInfo(result)
 
 	switch result.Status.Signature {
 	case "VALID":
@@ -478,24 +558,55 @@ func verifyMerkleIntegrity(merkleBranch []*api.MerkleNode, verificationHash stri
 	return true
 }
 
-func verifyWitness(r *api.Revision, doVerifyMerkleProof bool) (string, string) {
+func verifyWitness(r *api.Revision, doVerifyMerkleProof bool) (string, *WitnessResult) {
 	if r.Witness == nil {
-		return "MISSING", ""
+		return "MISSING", nil
 	}
 
-	wh := " " + shortenHash(r.Witness.WitnessHash)
-	result := "  Witness event" + wh + " detected\n"
+	actualWitnessEventVerificationHash := getHashSum(
+		r.Witness.DomainSnapshotGenesisHash + r.Witness.MerkleRoot,
+	)
 
-	txHash := r.Witness.WitnessEventTransactionHash
-	result += space4 + "Transaction hash: " + txHash + "\n"
+	result := &WitnessResult{
+		WitnessHash:                        r.Witness.WitnessHash,
+		TxHash:                             r.Witness.WitnessEventTransactionHash,
+		WitnessNetwork:                     r.Witness.WitnessNetwork,
+		EtherscanResult:                    "",
+		EtherscanErrorMessage:              "",
+		ActualWitnessEventVerificationHash: actualWitnessEventVerificationHash,
+		WitnessEventVHMatches:              true,
+		// `extra` is populated with useful info when the witness event verification
+		// doesn't match.
+		Extra:               nil,
+		DoVerifyMerkleProof: doVerifyMerkleProof,
+		MerkleProofStatus:   "",
+	}
 
-	suffix := r.Witness.WitnessNetwork + " via etherscan.io"
+	// Do online lookup of transaction hash
+	etherScanResult := "true"
 	if err := checkEtherScan(r); err != nil {
-		result += space4 + err.Error() + " " + suffix
+		etherScanResult = err.Error()
+		var errMsg string
+		if etherScanResult == "Transaction hash not found" {
+			errMsg = "Transaction hash not found"
+		} else if strings.Contains(etherScanResult, "ENETUNREACH") {
+			errMsg = "Server is unreachable"
+		} else {
+			errMsg = "Online lookup failed"
+		}
+		result.EtherscanErrorMessage = errMsg
+	}
+	result.EtherscanResult = etherScanResult
+
+	if actualWitnessEventVerificationHash != r.Witness.WitnessEventVerificationHash {
+		result.WitnessEventVHMatches = false
+		result.Extra = &WitnessResultExtra{
+			DomainSnapshotGenesisHash:    r.Witness.DomainSnapshotGenesisHash,
+			MerkleRoot:                   r.Witness.MerkleRoot,
+			WitnessEventVerificationHash: r.Witness.WitnessEventVerificationHash,
+		}
 		return "INVALID", result
 	}
-	result += space4 + CHECKMARK + WATCH + "Witness event verification hash has been verified on " + suffix + "\n"
-
 	// At this point, we know that the witness matches.
 	if doVerifyMerkleProof {
 		// Only verify the witness merkle proof when verifyWitness is successful,
@@ -503,15 +614,18 @@ func verifyWitness(r *api.Revision, doVerifyMerkleProof bool) (string, string) {
 		verificationHash := r.Metadata.VerificationHash
 		if verificationHash == r.Witness.DomainSnapshotGenesisHash {
 			// Corner case when the page is a Domain Snapshot.
-			result += space4 + CHECKMARK + "Is a Domain Snapshot, hence not part of Merkle Proof\n"
+			result.MerkleProofStatus = "DOMAIN_SNAPSHOT"
 		} else {
-			if verifyMerkleIntegrity(r.Witness.MerkleProof, verificationHash) {
-				result += space4 + CHECKMARK + BRANCH + "Witness Merkle Proof is OK\n"
+			if merkleProofIsOK := verifyMerkleIntegrity(r.Witness.MerkleProof, verificationHash); merkleProofIsOK {
+				result.MerkleProofStatus = "VALID"
 			} else {
-				result += space4 + CHECKMARK + BRANCH + "Witness Merkle Proof is corrupted\n"
+				result.MerkleProofStatus = "INVALID"
 				return "INVALID", result
 			}
 		}
+	}
+	if etherScanResult != "true" {
+		return "INVALID", result
 	}
 	return "VALID", result
 }
