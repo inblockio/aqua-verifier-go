@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -207,54 +206,32 @@ func validateTitle(title string) string {
 	return t
 }
 
-func formatHTTPError(response, message string) {
-}
-
 func cliRedify(content string) string {
 	return FgRed + content + Reset
 }
 
-func cliYellowfy(content string) {
-}
-
-func htmlRedify(content string) {
-}
-
-func redify(isHtml, content string) {
-}
-
-func htmlDimify(content string) {
+func cliYellowfy(content string) string {
+	return FgYellow + content + Reset
 }
 
 func logRed(content string) {
-	fmt.Println(content)
+	fmt.Println(cliRedify(content))
 }
 
-func log_yellow(content string) {
+func logYellow(content string) {
+	fmt.Println(cliYellowfy(content))
 }
 
 func logDim(content string) {
 	fmt.Println(Dim + content + Reset)
 }
 
-func formatMwTimestamp(ts time.Time) {
-}
-
 func formatDBTimestamp(ts time.Time) string {
 	return ts.Format("Jan 2, 2006, 3:04:05 PM UTC")
 }
 
-func getElapsedTime(start time.Time) {
-}
-
 func shortenHash(hash string) string {
 	return hash[:6] + "..." + hash[len(hash)-6:]
-}
-
-func clipboardifyHash(hash string) {
-}
-
-func makeHref(content string, u *url.URL) {
 }
 
 func getHashSum(content string) string {
