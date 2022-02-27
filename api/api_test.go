@@ -15,7 +15,7 @@ func TestGetHashChainInfo(t *testing.T) {
 	require := require.New(t)
 	a, e := NewAPI(testServer, testToken)
 	require.NoError(e)
-	revInfo, e := a.GetHashChainInfo("title", "Main_Page")
+	revInfo, e := a.GetHashChainInfo("title", "Main Page")
 	require.NoError(e)
 	require.NotEqual(revInfo.GenesisHash, "")
 	require.NotEqual(revInfo.LatestVerificationHash, "")
@@ -36,7 +36,7 @@ func TestGetRevisionHashes(t *testing.T) {
 	a, e := NewAPI(testServer, testToken)
 	require.NoError(e)
 	// get a verification hash from the main page
-	revInfo, e := a.GetHashChainInfo("title", "Main_Page")
+	revInfo, e := a.GetHashChainInfo("title", "Main Page")
 	require.NoError(e)
 	require.NotEqual(revInfo.LatestVerificationHash, "")
 
@@ -53,7 +53,7 @@ func TestGetRevision(t *testing.T) {
 	a, e := NewAPI(testServer, testToken)
 	require.NoError(e)
 	// get a verification hash from the main page
-	revInfo, e := a.GetHashChainInfo("title", "Main_Page")
+	revInfo, e := a.GetHashChainInfo("title", "Main Page")
 	require.NoError(e)
 	require.NotEqual(revInfo.LatestVerificationHash, "")
 
@@ -73,7 +73,7 @@ func TestGetRevision(t *testing.T) {
 	require.NotEqual(r.Metadata.MetadataHash, "")
 	require.NotEqual(r.Metadata.VerificationHash, "")
 	require.NotNil(r.Signature)
-	// FIXME: these fields are optional and not present on the default installation Main_Page
+	// FIXME: these fields are optional and not present on the default installation Main Page
 	//require.NotEqual(r.Signature.Signature, "")
 	//require.NotEqual(r.Signature.PublicKey, "")
 	//require.NotEqual(r.Signature.WalletAddress, "")
