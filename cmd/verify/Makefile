@@ -9,7 +9,7 @@ build: deps
 	go build
 
 wasm-build: deps
-	GOOS=js GOARCH=wasm go build -o verify.wasm verify.go
+	GOOS=js GOARCH=wasm go build -o verify.wasm
 
 wasm-test: wasm-build
 	cp $(shell go env GOROOT)/misc/wasm/wasm_exec.js .
