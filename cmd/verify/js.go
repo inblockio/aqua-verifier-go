@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	endpoint = "http://localhost:9352"
+	endpoint = "http://localhost:9352/rest.php"
 	verbose  = false
 )
 
