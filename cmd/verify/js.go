@@ -8,6 +8,7 @@ import (
 	"github.com/inblockio/aqua-verifier-go/api"
 	"github.com/inblockio/aqua-verifier-go/verify"
 	"syscall/js"
+	"sync"
 )
 
 var (
@@ -22,46 +23,145 @@ func exportJSMethods() {
 	if err != nil {
 		return
 	}
+	// promiseConstructor is used to wrap any blocking methods
+	promiseConstructor := js.Global().Get("Promise")
+	// jsError is used to return any errors
+	jsError := js.Global().Get("Error")
+
+	// https://github.com/gptankit/go-wasm/blob/main/gowasmfetch/fetcher/gofetch/gofetch.go:41
+	// wrapper to return error as js.Error
+	jerr := func (err error) interface{} {
+		return jsError.New(err.Error())
+	}
 
 	// export API methods
 	js.Global().Set("GetHashChainInfo",
+		// Wrap the API method in a Promise
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			id_type := args[0].String()
 			id := args[1].String()
-			rev, err := a.GetHashChainInfo(id_type, id)
-			if err != nil {
-				return err
-			}
-			return rev
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
+				go func() {
+					rev, err := a.GetHashChainInfo(id_type, id)
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+					b, err := json.Marshal(rev)
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+					resolve.Invoke(b)
+				}()
+				return nil
+			})
+			return promiseConstructor.New(handler)
 		}))
 
 	js.Global().Set("GetRevisionHashes",
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			verification_hash := args[0].String()
-			hashes, err := a.GetRevisionHashes(verification_hash)
-			if err == nil {
-				return hashes
-			}
-			return err
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
+				go func() {
+					hashes, err := a.GetRevisionHashes(verification_hash)
+					if err == nil {
+						b, e := json.Marshal(hashes)
+						if e != nil {
+							reject.Invoke(jerr(err))
+							return
+						}
+						resolve.Invoke(string(b))
+						return
+					}
+					resolve.Invoke(jerr(err))
+					return
+				}()
+				return nil
+			})
+			return promiseConstructor.New(handler)
+		}))
+	js.Global().Set("GetRevision",
+		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			revision := args[0].String()
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
+
+				go func() {
+					rev, err := a.GetRevision(revision)
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+					b, err := json.Marshal(rev)
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+					resolve.Invoke(string(b))
+				}()
+				return nil
+			})
+			return promiseConstructor.New(handler)
+		}))
+	js.Global().Set("GetServerInfo",
+		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
+				go func() {
+					i, err := a.GetServerInfo()
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+
+					b, err := json.Marshal(i)
+					if err != nil {
+						reject.Invoke(jerr(err))
+						return
+					}
+					resolve.Invoke(string(b))
+				}()
+				return nil
+			})
+			return promiseConstructor.New(handler)
 		}))
 	// export verifier methods
 	js.Global().Set("VerifyOfflineData",
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			// TODO check len args
-			// revisionData is json encoded string as arg[0]
-			d := json.NewDecoder(bytes.NewBufferString(args[0].String()))
-			r := new(api.OfflineRevisionInfo)
-			e := d.Decode(r)
-			if e != nil {
-				return e
-			}
-
 			doVerifyMerkleProof := args[1].Bool()
 			depth := args[2].Int()
+			data := args[0].String()
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
 
-			return verify.VerifyOfflineData(r, doVerifyMerkleProof, depth)
+				go func() {
+					// revisionData is json encoded string as arg[0]
+					d := json.NewDecoder(bytes.NewBufferString(data))
+					r := new(api.OfflineRevisionInfo)
+					e := d.Decode(r)
+					if e != nil {
+						reject.Invoke(jerr(e))
+						return
+					}
+					resolve.Invoke(verify.VerifyOfflineData(r, doVerifyMerkleProof, depth))
+				}()
+				return nil
+			})
+			return promiseConstructor.New(handler)
 		}))
 }
+
 func main() {
 	exportJSMethods()
+	var wg sync.WaitGroup
+	wg.Add(1)
+	wg.Wait()
 }
