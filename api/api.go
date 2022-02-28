@@ -60,7 +60,7 @@ type Namespace struct {
 	Title string `json:"title"`
 }
 
-// SiteInfo holds the SiteInfo part of a RevisionInfo
+// SiteInfo holds the SiteInfo part of a HashChainInfo
 type SiteInfo struct {
 	SiteName   string             `json:"sitename"`
 	DbName     string             `json:"dbname"`
@@ -70,8 +70,8 @@ type SiteInfo struct {
 	Namespaces map[int]*Namespace `json:"namespaces"`
 }
 
-// RevisionInfo holds the api response to endpoint_get_hash_chain_info
-type RevisionInfo struct {
+// HashChainInfo holds the api response to endpoint_get_hash_chain_info
+type HashChainInfo struct {
 	GenesisHash            string    `json:"genesis_hash"`
 	DomainId               string    `json:"domain_id"`
 	Content                string    `json:"content"`
@@ -82,9 +82,9 @@ type RevisionInfo struct {
 	ChainHeight            int       `json:"chain_height"`
 }
 
-// OfflineRevisionInfo is the same as RevisionInfo but has a map of Revision keyed by revision hash
+// OfflineRevisionInfo is the same as HashChainInfo but has a map of Revision keyed by revision hash
 type OfflineRevisionInfo struct {
-	RevisionInfo
+	HashChainInfo
 	Revisions map[string]*Revision `json:"revisions"`
 }
 
@@ -194,7 +194,7 @@ type OfflineData struct {
 }
 
 // GetHashChainInfo returns you all context for the requested hash_chain.
-func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, error) {
+func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*HashChainInfo, error) {
 	if id_type != "genesis_hash" && id_type != "title" {
 		return nil, errors.New("id_type must be genesis_hash or title")
 	}
@@ -208,7 +208,7 @@ func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*RevisionInfo, erro
 	}
 
 	d := json.NewDecoder(resp.Body)
-	r := new(RevisionInfo)
+	r := new(HashChainInfo)
 	err = d.Decode(r)
 	if err != nil {
 		log.Println(err)

@@ -28,7 +28,7 @@ func TestGetHashChainInfo(t *testing.T) {
 	require.NotEqual(revInfo.SiteInfo.Case, "")
 	require.NotNil(revInfo.SiteInfo.Namespaces)
 	require.NotEmpty(revInfo.SiteInfo.Namespaces)
-	t.Logf("Deserialized RevisionInfo: %v", revInfo)
+	t.Logf("Deserialized HashChainInfo: %v", revInfo)
 }
 
 func TestGetRevisionHashes(t *testing.T) {
