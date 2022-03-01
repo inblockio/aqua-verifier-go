@@ -1,0 +1,366 @@
+{
+    "pages": [
+        {
+            "genesis_hash": "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34",
+            "domain_id": "5e5a1ec586",
+            "latest_verification_hash": "272465a05848f07e530ab0ea396b3e6e268ca17560361db56c19c1215f80b28ce70470fb361292648b572afee4d65c44dd0cd1d7c81c402e6b233767379db813",
+            "title": "Main_Page",
+            "namespace": 0,
+            "chain_height": 7,
+            "revisions": {
+                "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34": {
+                    "verification_context": {
+                        "has_previous_signature": false,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 10,
+                        "content": {
+                            "main": "Welcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"revid\":9,\"genesis_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"content_hash\":\"244f04a733e6796d9b503783f8e2902287849e7db8bf0ca7b7e95f797120c0f8ca93b23de802d97ac94a7cdcad673dd7747db6d51b02540abaf455c0a3989197\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"revid\":0,\"genesis_hash\":null,\"verification_hash\":null,\"content_hash\":null},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"revid\":0,\"genesis_hash\":null,\"verification_hash\":null,\"content_hash\":null},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"revid\":0,\"genesis_hash\":null,\"verification_hash\":null,\"content_hash\":null}]"
+                        },
+                        "content_hash": "2cbf8ec7a09c41be1528cd359e9d11a473caca580be4a0835452045b10b962b18fb0005c1cd68bfb5bb1a9580198b27b34d99f6a1e7b35c642caaad86761523a"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220104075321",
+                        "previous_verification_hash": "",
+                        "metadata_hash": "21266d8a503b66d2f4edb029a819e5f91f00b77072f7b1607fa18e503760d848b8c4262935c5c038d1cd40f8b7ed052b541a83851470c643794235161a82b1a4",
+                        "verification_hash": "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34"
+                    },
+                    "signature": {
+                        "signature": "0xee00007e8eb51b2566240897ea4c9b1aee30bfc48929c3a3046855423fd43dba2fcd7a51e225eef0cc2dd561c147d733934f32c6ae11f9be490987e6b7fe93781c",
+                        "public_key": "0x04f00d6e178562a62ec9e595da4294f640dca429fc98e7128b8e7ee83039912d64a924bea34e629b9b45990c65e92efc3d74533f870479d10ff895834fff4fa1e8",
+                        "wallet_address": "0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0",
+                        "signature_hash": "91bbc0bec6cc84cc11cf1747d514b96c34666291242b048c034ccf28d909b524d0c0fdbb5614a8e20b25ce855097a633292367769c5d18f04918e0660a77d494"
+                    },
+                    "witness": {
+                        "witness_event_id": "1",
+                        "domain_id": "5e5a1ec586",
+                        "domain_snapshot_title": "Data Accounting:DomainSnapshot:305ca37488e0d1e20535f08f073290c564040f6574a84ab73fd5d4c6def175bc02260585bae9f6fc4a584a8367881ef5257c364692ff07378b6caa28d1450d9e",
+                        "witness_hash": "593872fb126334e4e325055a81f5e7001a74e801f59ba992312e970eb00e16ef60ca0be581500ba8e0879f20a86f4040c6c973a57b2f476041ef3ce13a511d29",
+                        "domain_snapshot_genesis_hash": "305ca37488e0d1e20535f08f073290c564040f6574a84ab73fd5d4c6def175bc02260585bae9f6fc4a584a8367881ef5257c364692ff07378b6caa28d1450d9e",
+                        "merkle_root": "c2c84eb0f69b769493e39b6e86268957be98fe735b5782cfcbb49a216ec17684dabda30082212080bb522dc3665fb226ad4932f7d8e1baf5808efd08f38a2ac8",
+                        "witness_event_verification_hash": "39cff24a0eebc962ec1e5e78e69dc2ac508799c646f722a580d8ab58bcc523db225e64a10edcb43b2c511e6734793f179ee027c0207e1c328b014b820f146291",
+                        "witness_network": "goerli",
+                        "smart_contract_address": "0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611",
+                        "witness_event_transaction_hash": "0x17cb36e3abfe5cd2894f7b324102c3864d202bc7b85e4f3e5ec78ca2c3db79d7",
+                        "sender_account_address": "0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0",
+                        "source": "default",
+                        "structured_merkle_proof": [
+                            {
+                                "witness_event_id": "1",
+                                "depth": "2",
+                                "left_leaf": "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34",
+                                "right_leaf": "ef9f5dfc614256ac007d77ffcb89e885ac6eb9a6f338520e86e4e6e439002ae3a0b33e92b59d9875cd6153ddb0b132399b791d94de30d4cd6a11348b8c0451d7",
+                                "successor": "0562e39533671e0685613692d27c446b8c4d2c4322cd51fa50692a8525ce88fe43119f8953614b33503761e8622cca51df0e683dedad8548f74a77ff455c4dea"
+                            },
+                            {
+                                "witness_event_id": "1",
+                                "depth": "1",
+                                "left_leaf": "1573fe27d87713699cafdcb9ff84e87d8057d29e11c5c195b4c506c92a91b3bb94cda360778d662fc4df5c386f43144efb08d014f5144020ce01b878c7fae166",
+                                "right_leaf": "0562e39533671e0685613692d27c446b8c4d2c4322cd51fa50692a8525ce88fe43119f8953614b33503761e8622cca51df0e683dedad8548f74a77ff455c4dea",
+                                "successor": "b694444e086a5b8c0273bbcf98ed180dc17fe8b07aa72c60160dc38ce140ba8976077c51c8e9330352745981bda21a186436034d239958355386fcde4379a1f3"
+                            },
+                            {
+                                "witness_event_id": "1",
+                                "depth": "0",
+                                "left_leaf": "b694444e086a5b8c0273bbcf98ed180dc17fe8b07aa72c60160dc38ce140ba8976077c51c8e9330352745981bda21a186436034d239958355386fcde4379a1f3",
+                                "right_leaf": "e47f288bc7cc63a46ceba0a692f9551295f76ddb601884f135564b82ff51602504300fcf1cc6c139d457b7577a56a4c31ee39550273d8873e097c8bfb894497e",
+                                "successor": "c2c84eb0f69b769493e39b6e86268957be98fe735b5782cfcbb49a216ec17684dabda30082212080bb522dc3665fb226ad4932f7d8e1baf5808efd08f38a2ac8"
+                            }
+                        ]
+                    }
+                },
+                "e077b1f04440df9b5544efe4078851c2a5508868a6639c4feaa765c3d1f70cbbd764b2af46b02fe8662f9a7757dbd5bc9bc2eff0afeb9d5b26e777dcd3f37b12": {
+                    "verification_context": {
+                        "has_previous_signature": true,
+                        "has_previous_witness": true
+                    },
+                    "content": {
+                        "rev_id": 25,
+                        "content": {
+                            "main": "Welcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"genesis_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"content_hash\":\"244f04a733e6796d9b503783f8e2902287849e7db8bf0ca7b7e95f797120c0f8ca93b23de802d97ac94a7cdcad673dd7747db6d51b02540abaf455c0a3989197\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"genesis_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\",\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\",\"content_hash\":\"3d7ba2df8b88d5f27d9aeb7cb90a94dc34e33047e88b4a122687fc8fc3d65c18ae0395fc51a7f3a651455db76ab872d386f5b8ce024d750ee67cdeb3347dc10a\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"genesis_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\",\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\",\"content_hash\":\"f3cad5298d391569dec3a89262a4f78d46143b156fd1044d5bb4d8fc4147f35becaf90fcc64d9b040f13a40de1cf61478df9a1a793d8446acbcbc2cec1c020f5\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"genesis_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\",\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\",\"content_hash\":\"2a941eb95d47502ea96fe70081cef1c41ee47cc8b3ebea344e3a27486413a3f3e5a4988bc32d403456472a72d02d63c282a5dd070eefe51bebf3bb3b618bee24\"}]"
+                        },
+                        "content_hash": "b39e3e26ef8e1b96e4886264ea2e84214a8ffe0893a441b8ae2c9150cfbb6ff5420accfdf2e02b6588082ee0bcd0aa1362b3ae31c984f19a3ad5fbbc093c4bef"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220106124602",
+                        "previous_verification_hash": "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34",
+                        "metadata_hash": "ab53d5f126f7b6a2dc084c219c91e6042a02c7c6da009562140b1e4b1256531dfc8488169d83c018f759076a0032510cd0adc42b764bfc269e892e0cf62f3055",
+                        "verification_hash": "e077b1f04440df9b5544efe4078851c2a5508868a6639c4feaa765c3d1f70cbbd764b2af46b02fe8662f9a7757dbd5bc9bc2eff0afeb9d5b26e777dcd3f37b12"
+                    },
+                    "signature": {
+                        "signature": "",
+                        "public_key": "",
+                        "wallet_address": "",
+                        "signature_hash": ""
+                    },
+                    "witness": null
+                },
+                "df819f67dacfbfafd6d3ed47e38909d016242c1c896bff3ad57b4d3918cd962826cf8741d06e3a5e3898e8f102326b95b525a81a5338c6af546871ac2235db6d": {
+                    "verification_context": {
+                        "has_previous_signature": false,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 27,
+                        "content": {
+                            "main": "0xab5801a7d398351b8be11c439e05c5b3259aec9b\n\nWelcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"genesis_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\",\"content_hash\":\"244f04a733e6796d9b503783f8e2902287849e7db8bf0ca7b7e95f797120c0f8ca93b23de802d97ac94a7cdcad673dd7747db6d51b02540abaf455c0a3989197\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"genesis_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\",\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\",\"content_hash\":\"3d7ba2df8b88d5f27d9aeb7cb90a94dc34e33047e88b4a122687fc8fc3d65c18ae0395fc51a7f3a651455db76ab872d386f5b8ce024d750ee67cdeb3347dc10a\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"genesis_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\",\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\",\"content_hash\":\"f3cad5298d391569dec3a89262a4f78d46143b156fd1044d5bb4d8fc4147f35becaf90fcc64d9b040f13a40de1cf61478df9a1a793d8446acbcbc2cec1c020f5\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"genesis_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\",\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\",\"content_hash\":\"2a941eb95d47502ea96fe70081cef1c41ee47cc8b3ebea344e3a27486413a3f3e5a4988bc32d403456472a72d02d63c282a5dd070eefe51bebf3bb3b618bee24\"}]"
+                        },
+                        "content_hash": "1e33daff1145cfbc7fe0d46073c42ea2a82d149ec47b8ff584d67c02027a0ae469ec0cc134a04fd80915b980bbf98192cdff1583082126246823fb46da0277ed"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220107081743",
+                        "previous_verification_hash": "e077b1f04440df9b5544efe4078851c2a5508868a6639c4feaa765c3d1f70cbbd764b2af46b02fe8662f9a7757dbd5bc9bc2eff0afeb9d5b26e777dcd3f37b12",
+                        "metadata_hash": "bf4efdf9a8e8d61db5229f04a6d5c111e6c1153991485ef1aacab82d8d6cd5bb57262c7ea2c41e29a3702657fffb788dba5bf5847e7d8fa9944b0086080908b1",
+                        "verification_hash": "df819f67dacfbfafd6d3ed47e38909d016242c1c896bff3ad57b4d3918cd962826cf8741d06e3a5e3898e8f102326b95b525a81a5338c6af546871ac2235db6d"
+                    },
+                    "signature": {
+                        "signature": "",
+                        "public_key": "",
+                        "wallet_address": "",
+                        "signature_hash": ""
+                    },
+                    "witness": null
+                },
+                "ea456cb8244bccf0e1602faa2ad982063ec76e566ba7c1c69e9449ac069190dfd8ddfed5a1472b50ce86f98315620529875b0bc450275bf7e1f7d2e860cf3ff8": {
+                    "verification_context": {
+                        "has_previous_signature": false,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 28,
+                        "content": {
+                            "main": "0xab5801a7d398351b8be11c439e05c5b3259aec9b\n[[0xab5801a7d398351b8be11c439e05c5b3259aec9b]]\n\nWelcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\"},{\"dbkey\":\"0xab5801a7d398351b8be11c439e05c5b3259aec9b\",\"ns\":0,\"verification_hash\":null}]"
+                        },
+                        "content_hash": "4688bf5cd321c3a76e6bba7f77895241ec617b43ab9ca05a788b90f7be084c4440fb88a86e3d8c685824f64f4ef826da632c6f7a968d28dab263fb58661f9cda"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220107133044",
+                        "previous_verification_hash": "df819f67dacfbfafd6d3ed47e38909d016242c1c896bff3ad57b4d3918cd962826cf8741d06e3a5e3898e8f102326b95b525a81a5338c6af546871ac2235db6d",
+                        "metadata_hash": "8676182d5afba4cd3bb327f43150b48cb7bfd90559c8ab0ed51a6a6cbd499c3f08af1db5241043037d9f31f34e45b9e0004eb5e9cc4cfd49170467d108c292ba",
+                        "verification_hash": "ea456cb8244bccf0e1602faa2ad982063ec76e566ba7c1c69e9449ac069190dfd8ddfed5a1472b50ce86f98315620529875b0bc450275bf7e1f7d2e860cf3ff8"
+                    },
+                    "signature": {
+                        "signature": "0xcd5c7a3bb3e1896cde7d6e556998ce1a116e41fd3809481c9a4ceb2c61cff8ab2e39dfadddd5913c391990f13b3b44703967129dabf96f5919e3c6964b8c61121b",
+                        "public_key": "0x04f00d6e178562a62ec9e595da4294f640dca429fc98e7128b8e7ee83039912d64a924bea34e629b9b45990c65e92efc3d74533f870479d10ff895834fff4fa1e8",
+                        "wallet_address": "0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0",
+                        "signature_hash": "0529f4806097e4a7570b25361bc08854c83e057caeb7f35dadc91ad64c282b581fd6108fd44f3fb1bda8157281831b869d5cab021129f215eb2dff2a8b4557d1"
+                    },
+                    "witness": null
+                },
+                "32c0af6195fbc42ba5359541bb048615d95a7b834dc085ea4e7784166e164f58dace6fcefd5e68dee1ea2eb4f2caecc65f6d5092bcad97a9ca46a461fd0ad449": {
+                    "verification_context": {
+                        "has_previous_signature": true,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 43,
+                        "content": {
+                            "main": "0xab5801a7d398351b8be11c439e05c5b3259aec9b\n[[0xab5801a7d398351b8be11c439e05c5b3259aec9b]]\n\nWelcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054216\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\"},{\"dbkey\":\"0xab5801a7d398351b8be11c439e05c5b3259aec9b\",\"ns\":0,\"verification_hash\":null}]"
+                        },
+                        "content_hash": "4ac08d5d0651b67bc26e3ca5f4b8c814129e6c28f154f16206680bed8a8ff7429b71fa8b22e0187001e2a70a6b35d4421c8a56707db73735a89d5b5d419e8ce6"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220109054216",
+                        "previous_verification_hash": "ea456cb8244bccf0e1602faa2ad982063ec76e566ba7c1c69e9449ac069190dfd8ddfed5a1472b50ce86f98315620529875b0bc450275bf7e1f7d2e860cf3ff8",
+                        "metadata_hash": "2dd3ca66fb61226d0bb6b996b79603beb25b277c20c7afc344bdad4aa3bd518edc18da02e1cc32b12c93a6b910ab1a715770acfd94dcf2c5888d4e57118d2b24",
+                        "verification_hash": "32c0af6195fbc42ba5359541bb048615d95a7b834dc085ea4e7784166e164f58dace6fcefd5e68dee1ea2eb4f2caecc65f6d5092bcad97a9ca46a461fd0ad449"
+                    },
+                    "signature": {
+                        "signature": "0xd50f1ac59809422de85db9d01420f08986263947b47493f84147acdfd61930275352c67ae01680f8cc93c27416670e7f2ff140dedb94a08ee964cb2766bad1a71c",
+                        "public_key": "0x04f00d6e178562a62ec9e595da4294f640dca429fc98e7128b8e7ee83039912d64a924bea34e629b9b45990c65e92efc3d74533f870479d10ff895834fff4fa1e8",
+                        "wallet_address": "0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0",
+                        "signature_hash": "d847da7a567b603fa06807ade36c3eabc63c45d672c792ff6cb768defe4555e4d7587ae8d67fcf5efbb82b1f75eb73b9ca49c1c532d438ccd6132ade083b7c7f"
+                    },
+                    "witness": null
+                },
+                "8ee88db50cc67c4fd6bf867003602752d398487b3f8f16e7e1e333b72c454ab4f6397e58d40f0e6274dd3730fd2dab7763bdb092201ce5c1c862018439fb7b15": {
+                    "verification_context": {
+                        "has_previous_signature": true,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 44,
+                        "content": {
+                            "main": "0xab5801a7d398351b8be11c439e05c5b3259aec9b\n[[0xab5801a7d398351b8be11c439e05c5b3259aec9b]]\n\nWelcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054216\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054618\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\"},{\"dbkey\":\"0xab5801a7d398351b8be11c439e05c5b3259aec9b\",\"ns\":0,\"verification_hash\":null}]"
+                        },
+                        "content_hash": "948a8b7c443bdfdb61b0378d93f304d8fb913422ce04d050e2bfbfd5df113b6181ae7da285aa1358e47abbb1ca0d02328816443e645a1d6054eead709e441a74"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220109054618",
+                        "previous_verification_hash": "32c0af6195fbc42ba5359541bb048615d95a7b834dc085ea4e7784166e164f58dace6fcefd5e68dee1ea2eb4f2caecc65f6d5092bcad97a9ca46a461fd0ad449",
+                        "metadata_hash": "1db371b4c7dfadb70968a46a690c4d5de9010eeb16144582f582e75003f87f2853f0b5fecd100ce7e3c94bc111d732fe4fa45572882341f4e952e009d99f5ec9",
+                        "verification_hash": "8ee88db50cc67c4fd6bf867003602752d398487b3f8f16e7e1e333b72c454ab4f6397e58d40f0e6274dd3730fd2dab7763bdb092201ce5c1c862018439fb7b15"
+                    },
+                    "signature": {
+                        "signature": "0xa4dea702a3c7bac9632386ae46435d00224edc360e7eafc293f1ee36a3f33fb57a99e2025a9daf84cc59fa7cd01ae4b02eb42ebee6791c5eb788e44be34bf8b31c",
+                        "public_key": "0x04f00d6e178562a62ec9e595da4294f640dca429fc98e7128b8e7ee83039912d64a924bea34e629b9b45990c65e92efc3d74533f870479d10ff895834fff4fa1e8",
+                        "wallet_address": "0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0",
+                        "signature_hash": "d2a01ef003b844feb5b4eb2565a4c13e019b7ccc67bc508ee1b0b0e9cd45d9c564380fc2d423579b5cd004ee55ed6d01a9282c1073462b832810937a38f491cd"
+                    },
+                    "witness": null
+                },
+                "272465a05848f07e530ab0ea396b3e6e268ca17560361db56c19c1215f80b28ce70470fb361292648b572afee4d65c44dd0cd1d7c81c402e6b233767379db813": {
+                    "verification_context": {
+                        "has_previous_signature": true,
+                        "has_previous_witness": false
+                    },
+                    "content": {
+                        "rev_id": 45,
+                        "content": {
+                            "main": "0xab5801a7d398351b8be11c439e05c5b3259aec9b\n[[0xab5801a7d398351b8be11c439e05c5b3259aec9b]]\n\nWelcome to the Personal Knowledge Container!<br>\n\n''Follow our [[Interactive_Tutorial]] to learn how to use this product.''<br>\n\nThe [[Personal Knowledge Container]] is your Private Data Vault.<br>\nIt's a secure place where you own and govern your [[Verified Data]]. <br> \nEmpowered by the free and open-source DataAccounting Software.<br>\n\nGet started by logging in with the option: 'Login with Ethereum Wallet' in the upper right corner.\n\nYou can read about all of the actions in the [[PKC_Documentation]].\n\nConfigure and find more information about it here: <\/i>[[Special:DataAccountingConfig|Data Accounting Configurator]]<i>",
+                            "signature-slot": "[\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220106124602\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054216\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054618\"\n    },\n    {\n        \"user\": \"0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0\",\n        \"timestamp\": \"20220109054714\"\n    }\n]",
+                            "transclusion-hashes": "[{\"dbkey\":\"Interactive_Tutorial\",\"ns\":0,\"verification_hash\":\"50541d9b1a40dd1c49b0b89496843691e237694587c3c9c3c5d4877aa45ed963124b0b9c54f24d3771972d426839ed408cc4e37091cec3bd8482430a22f980c6\"},{\"dbkey\":\"PKC_Documentation\",\"ns\":0,\"verification_hash\":\"c0a4cfc0f5777edcd28d4cae5e4af4888daf8bacf4235d9500f64a1aaa5b235b7d0b0b0639ea7d5780f33db991ba02719b6f5060ad7f145d9e7fb7a75133020e\"},{\"dbkey\":\"Personal_Knowledge_Container\",\"ns\":0,\"verification_hash\":\"1b2a0dabb75bc5a7cb826e820d2d7bb83e640b983795cfec2795d9ec9976e89b66a6b2e39b3551373700360368606bb562fcd9651f57274b2341685529a8c498\"},{\"dbkey\":\"Verified_Data\",\"ns\":0,\"verification_hash\":\"7f002dd18ee003766dd581b1bcfcf17ec686d8815105fb7296d3ac4f536d50e1225358cd7ec984ca99ad7013021698eaed770aa9037ceb4d2780966a115eb76a\"},{\"dbkey\":\"0xab5801a7d398351b8be11c439e05c5b3259aec9b\",\"ns\":0,\"verification_hash\":null}]"
+                        },
+                        "content_hash": "c0f456c05537f368c549dd32638189d250623e09c3aaaa28de32fa473aa2d036a5826a95e61f8481004b90e26ea8b3d5e46dc80cdc48bd3c9fb76b006b9706ce"
+                    },
+                    "metadata": {
+                        "domain_id": "5e5a1ec586",
+                        "time_stamp": "20220109054715",
+                        "previous_verification_hash": "8ee88db50cc67c4fd6bf867003602752d398487b3f8f16e7e1e333b72c454ab4f6397e58d40f0e6274dd3730fd2dab7763bdb092201ce5c1c862018439fb7b15",
+                        "metadata_hash": "b8ee7bd49bf5e26a1877fc38ef20cdf423d1566a08f34ad17e1e815f74e3f7c2649aa606039eb8f2a8c4e1b887687c9a196850a1246ecc408a18e83aee7a49c7",
+                        "verification_hash": "272465a05848f07e530ab0ea396b3e6e268ca17560361db56c19c1215f80b28ce70470fb361292648b572afee4d65c44dd0cd1d7c81c402e6b233767379db813"
+                    },
+                    "signature": {
+                        "signature": "",
+                        "public_key": "",
+                        "wallet_address": "",
+                        "signature_hash": ""
+                    },
+                    "witness": null
+                }
+            }
+        }
+    ],
+    "siteInfo": {
+        "sitename": "Personal Knowledge Container",
+        "dbname": "my_wiki",
+        "base": "http:\/\/localhost:9352\/index.php\/Main_Page",
+        "generator": "MediaWiki 1.37.1",
+        "case": "first-letter",
+        "namespaces": {
+            "-2": {
+                "case": true,
+                "title": "Media"
+            },
+            "-1": {
+                "case": true,
+                "title": "Special"
+            },
+            "0": {
+                "case": true,
+                "title": ""
+            },
+            "1": {
+                "case": true,
+                "title": "Talk"
+            },
+            "2": {
+                "case": true,
+                "title": "User"
+            },
+            "3": {
+                "case": true,
+                "title": "User talk"
+            },
+            "4": {
+                "case": true,
+                "title": "Personal Knowledge Container"
+            },
+            "5": {
+                "case": true,
+                "title": "Personal Knowledge Container talk"
+            },
+            "6": {
+                "case": true,
+                "title": "File"
+            },
+            "7": {
+                "case": true,
+                "title": "File talk"
+            },
+            "8": {
+                "case": true,
+                "title": "MediaWiki"
+            },
+            "9": {
+                "case": true,
+                "title": "MediaWiki talk"
+            },
+            "10": {
+                "case": true,
+                "title": "Template"
+            },
+            "11": {
+                "case": true,
+                "title": "Template talk"
+            },
+            "12": {
+                "case": true,
+                "title": "Help"
+            },
+            "13": {
+                "case": true,
+                "title": "Help talk"
+            },
+            "14": {
+                "case": true,
+                "title": "Category"
+            },
+            "15": {
+                "case": true,
+                "title": "Category talk"
+            },
+            "828": {
+                "case": true,
+                "title": "Module"
+            },
+            "829": {
+                "case": true,
+                "title": "Module talk"
+            },
+            "2300": {
+                "case": true,
+                "title": "Gadget"
+            },
+            "2301": {
+                "case": true,
+                "title": "Gadget talk"
+            },
+            "2302": {
+                "case": false,
+                "title": "Gadget definition"
+            },
+            "2303": {
+                "case": false,
+                "title": "Gadget definition talk"
+            },
+            "6942": {
+                "case": true,
+                "title": "Data Accounting"
+            },
+            "6943": {
+                "case": true,
+                "title": "Data Accounting talk"
+            }
+        },
+        "version": "0.3.0"
+    }
+}
