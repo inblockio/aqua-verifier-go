@@ -82,8 +82,8 @@ type HashChainInfo struct {
 	ChainHeight            int       `json:"chain_height"`
 }
 
-// OfflineRevisionInfo is the same as HashChainInfo but has a map of Revision keyed by revision hash
-type OfflineRevisionInfo struct {
+// HashChain is the same as HashChainInfo but has a map of Revision keyed by revision hash
+type HashChain struct {
 	HashChainInfo
 	Revisions map[string]*Revision `json:"revisions"`
 }
@@ -189,7 +189,7 @@ type Revision struct {
 
 // OfflineData holds the deserialized json-encoded export from PKC
 type OfflineData struct {
-	Pages    []*OfflineRevisionInfo
+	Pages    []*HashChain
 	SiteInfo *SiteInfo
 }
 

@@ -700,7 +700,7 @@ func verifyRevision(r *api.Revision, prev *api.Revision, doVerifyMerkleProof boo
 func calculateStatus(count, totalLength int) {
 }
 
-func getVerificationSet(data *api.OfflineRevisionInfo, depth int) ([]*api.Revision, int, error) {
+func getVerificationSet(data *api.HashChain, depth int) ([]*api.Revision, int, error) {
 	var height int
 	if depth == -1 || depth > len(data.Revisions) {
 		height = len(data.Revisions)
@@ -724,7 +724,7 @@ func getVerificationSet(data *api.OfflineRevisionInfo, depth int) ([]*api.Revisi
 }
 
 // verifyOfflineData verifies all revisions of a page.
-func verifyOfflineData(data *api.OfflineRevisionInfo, doVerifyMerkleProof bool, depth int) bool {
+func verifyOfflineData(data *api.HashChain, doVerifyMerkleProof bool, depth int) bool {
 	verificationSet, height, err := getVerificationSet(data, depth)
 	if err != nil {
 		fmt.Println(err)
