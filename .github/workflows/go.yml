@@ -28,4 +28,9 @@ jobs:
       run: cd aqua-verifier-go && go build -v ./...
 
     - name: Test
-      run: cd aqua-verifier-go && go test -v ./...
+      run: cd aqua-verifier-go && go test -v -coverprofile=coverage.out -covermode=atomic ./...
+
+    - name: Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        files: ./coverage.out
