@@ -1,6 +1,7 @@
 package verify
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -352,6 +353,13 @@ func printRevisionInfo(result *RevisionVerificationResult, r *api.Revision) {
 		fmt.Println("TODO")
 	}
 
+	switch result.Status.File {
+	case "VERIFIED":
+		fmt.Println("    " + CHECKMARK + FILE_GLYPH + " File content hash matches (" + result.FileHash + ")")
+	case "INVALID":
+		fmt.Println("    " + CROSSMARK + FILE_GLYPH + " Invalid file content hash")
+	}
+
 	printWitnessInfo(result)
 
 	switch result.Status.Signature {
@@ -404,6 +412,24 @@ func verifyRevisionMetadata(r *api.Revision) bool {
 		r.Metadata.Timestamp.String(),
 		r.Metadata.PreviousVerificationHash)
 	return mh == r.Metadata.MetadataHash
+}
+
+func verifyFileContent(content *api.RevisionContent) (string, error) {
+	if content.File == nil {
+		return "", nil
+	}
+	fileContentHash, ok := content.Content["file_hash"]
+	if !ok {
+		return "", errors.New("Revision contains a file, but no file content hash")
+	}
+	decoded, err := base64.StdEncoding.DecodeString(content.File.Data)
+	if err != nil {
+		return "", err
+	}
+	if actual := getHashSum(string(decoded[:])); actual != fileContentHash {
+		return "", errors.New("File content hash does not match")
+	}
+	return fileContentHash, nil
 }
 
 func verifyPreviousSignature(r *api.Revision, prev *api.Revision) error {
@@ -650,6 +676,17 @@ func verifyRevisionWithoutElapsed(r *api.Revision, prev *api.Revision, doVerifyM
 	// Mark metadata as correct
 	result.Status.Metadata = true
 
+	fileContentHash, err := verifyFileContent(r.Content)
+	if err != nil {
+		result.Error = err
+		result.Status.File = "INVALID"
+		return false, result
+	}
+	if fileContentHash != "" {
+		result.FileHash = fileContentHash
+		result.Status.File = "VERIFIED"
+	}
+
 	if !verifyContent(r.Content) {
 		result.Error = errors.New("Content hash doesn't match")
 		return false, result
@@ -657,7 +694,7 @@ func verifyRevisionWithoutElapsed(r *api.Revision, prev *api.Revision, doVerifyM
 	// Mark content as correct
 	result.Status.Content = true
 
-	err := verifyPreviousSignature(r, prev)
+	err = verifyPreviousSignature(r, prev)
 	if err != nil {
 		result.Error = err
 		return false, result

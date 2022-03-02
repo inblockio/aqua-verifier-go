@@ -94,14 +94,22 @@ type VerificationContext struct {
 	HasPreviousWitness   bool `json:"has_previous_witness"`
 }
 
+type FileContent struct {
+	Data     string `json:"data"`
+	Filename string `json:"filename"`
+	Size     int    `json:"size"`
+	Comment  string `json:"comment"`
+}
+
 // RevisionContent holds the content and hash in a Revision
-// We use a map with dynamic keys instead of hardcoded keys for Content because
-// we want to future-proof it, so that future changes to Content keys does not
-// require a code change here.
+// For Content, we use a map with dynamic keys instead of hardcoded keys for
+// Content because we want to future-proof it, so that future changes to
+// Content keys does not require a code change here.
 type RevisionContent struct {
 	RevId       int               `json:"rev_id"`
 	Content     map[string]string `json:"content"`
 	ContentHash string            `json:"content_hash"`
+	File        *FileContent      `json:"file"`
 }
 
 // Timestamp holds a timestamp in ??? format
