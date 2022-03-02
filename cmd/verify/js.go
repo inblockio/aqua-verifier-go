@@ -38,6 +38,9 @@ func exportJSMethods() {
 	js.Global().Set("GetHashChainInfo",
 		// Wrap the API method in a Promise
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			if len(args) != 2 {
+				return jsError.New("GetHashChainInfo takes two arguments: id_type, id")
+			}
 			id_type := args[0].String()
 			id := args[1].String()
 			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
@@ -54,7 +57,7 @@ func exportJSMethods() {
 						reject.Invoke(jerr(err))
 						return
 					}
-					resolve.Invoke(b)
+					resolve.Invoke(string(b))
 				}()
 				return nil
 			})
@@ -63,6 +66,10 @@ func exportJSMethods() {
 
 	js.Global().Set("GetRevisionHashes",
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			if len(args) != 1 {
+				return jsError.New("GetRevisionHashes takes onearguments: verification_hash")
+			}
+
 			verification_hash := args[0].String()
 			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				resolve := args[0]
@@ -87,6 +94,10 @@ func exportJSMethods() {
 		}))
 	js.Global().Set("GetRevision",
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			if len(args) != 1 {
+				return jsError.New("GetRevision takes one argument: revision_hash")
+			}
+
 			revision := args[0].String()
 			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				resolve := args[0]
@@ -135,13 +146,15 @@ func exportJSMethods() {
 	// export verifier methods
 	js.Global().Set("VerifyOfflineData",
 		js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			if len(args) != 3 {
+				return jsError.New("VerifyOfflineData takes three arguments: data (JSON string), doVerifyMerkleProof (bool), depth (int)")
+			}
+			data := args[0].String()
 			doVerifyMerkleProof := args[1].Bool()
 			depth := args[2].Int()
-			data := args[0].String()
 			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				resolve := args[0]
 				reject := args[1]
-
 				go func() {
 					// revisionData is json encoded string as arg[0]
 					d := json.NewDecoder(bytes.NewBufferString(data))
