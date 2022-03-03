@@ -11,6 +11,8 @@ import (
 
 var fixture = readExportFileAsString("test_fixtures/5e5a1ec586_Main_Page.json")
 
+const GlobalDoVerifyMerkleProof = false
+
 func readExportFileAsString(filename string) []byte {
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -71,7 +73,7 @@ func TestVerifyRevision(t *testing.T) {
 
 	verificationSet, err := getFixtureVerificationSet()
 	require.NoError(err)
-	doVerifyMerkleProof := true
+	doVerifyMerkleProof := GlobalDoVerifyMerkleProof
 
 	require.NoError(err)
 
@@ -149,7 +151,7 @@ func TestInvalidPreviousWitness(t *testing.T) {
 func TestInvalidCurrentWitness(t *testing.T) {
 	// When current witness is tampered
 	require := require.New(t)
-	doVerifyMerkleProof := true
+	doVerifyMerkleProof := GlobalDoVerifyMerkleProof
 	first, _, err := get1st2ndFixtureVerStructure()
 	require.NoError(err)
 
@@ -163,6 +165,10 @@ func TestInvalidCurrentWitness(t *testing.T) {
 	first.Witness.MerkleRoot = oldMR
 
 	// When the Merkle proof is tampered
+	if !GlobalDoVerifyMerkleProof {
+		// Skip if we completely disable online checking via Etherscan.
+		return
+	}
 	first.Witness.MerkleProof[0].LeftLeaf = "wrong"
 	isCorrect, result = verifyRevision(first, nil, doVerifyMerkleProof)
 	require.False(isCorrect)
