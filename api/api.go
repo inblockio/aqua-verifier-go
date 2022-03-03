@@ -214,7 +214,7 @@ func (a *AquaProtocol) GetHashChainInfo(id_type, id string) (*HashChainInfo, err
 	if err != nil {
 		return nil, err
 	}
-
+	defer resp.Body.Close()
 	d := json.NewDecoder(resp.Body)
 	r := new(HashChainInfo)
 	err = d.Decode(r)
@@ -238,7 +238,7 @@ func (a *AquaProtocol) GetRevisionHashes(verification_hash string) ([]*RevisionH
 	if err != nil {
 		return nil, err
 	}
-
+	defer resp.Body.Close()
 	d := json.NewDecoder(resp.Body)
 	r := make([]*RevisionHash, 0)
 	err = d.Decode(&r)
@@ -279,6 +279,7 @@ func (a *AquaProtocol) GetRevision(verification_hash string) (*Revision, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	d := json.NewDecoder(resp.Body)
 	r := new(Revision)
 	err = d.Decode(r)
@@ -308,6 +309,7 @@ func (a *AquaProtocol) GetServerInfo() (*ServerInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	d := json.NewDecoder(resp.Body)
 	s := new(ServerInfo)
 	err = d.Decode(s)
@@ -338,6 +340,7 @@ func CheckEtherscan(network, txHash, eventHash string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	// To avoid IP banning by etherscan.io
 	time.Sleep(300 * time.Millisecond)
