@@ -68,7 +68,17 @@ func expectErrorFirstRevision(require *require.Assertions, first *api.Revision, 
 	return result
 }
 
+func TestVerifyData(t *testing.T) {
+	// By doing this, we also execute the printRevisionInfo function, which is
+	// mainly for displaying info anyway. Those display functions could have
+	// been ignored by the coverage, but doing it this way is simpler.
+	require := require.New(t)
+	success := VerifyData("test_fixtures/5e5a1ec586_Main_Page.json", GlobalDoVerifyMerkleProof, -1)
+	require.True(success)
+}
+
 func TestVerifyRevision(t *testing.T) {
+	t.Skip("Skipped in favor of directly testing VerifyData")
 	require := require.New(t)
 
 	verificationSet, err := getFixtureVerificationSet()
