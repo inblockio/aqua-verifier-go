@@ -35,7 +35,7 @@
                         "signature_hash": "91bbc0bec6cc84cc11cf1747d514b96c34666291242b048c034ccf28d909b524d0c0fdbb5614a8e20b25ce855097a633292367769c5d18f04918e0660a77d494"
                     },
                     "witness": {
-                        "witness_event_id": "1",
+                        "witness_event_id": 1,
                         "domain_id": "5e5a1ec586",
                         "domain_snapshot_title": "Data Accounting:DomainSnapshot:305ca37488e0d1e20535f08f073290c564040f6574a84ab73fd5d4c6def175bc02260585bae9f6fc4a584a8367881ef5257c364692ff07378b6caa28d1450d9e",
                         "witness_hash": "593872fb126334e4e325055a81f5e7001a74e801f59ba992312e970eb00e16ef60ca0be581500ba8e0879f20a86f4040c6c973a57b2f476041ef3ce13a511d29",
@@ -49,22 +49,22 @@
                         "source": "default",
                         "structured_merkle_proof": [
                             {
-                                "witness_event_id": "1",
-                                "depth": "2",
+                                "witness_event_id": 1,
+                                "depth": 2,
                                 "left_leaf": "2e3db1ec3f17cde719c2c249f9725fdbd53ad549645c8d78a589f7d88257390dfb0841ec214a2dc80a00e4676361311899781a502b0d5cdb36c7b75074356f34",
                                 "right_leaf": "ef9f5dfc614256ac007d77ffcb89e885ac6eb9a6f338520e86e4e6e439002ae3a0b33e92b59d9875cd6153ddb0b132399b791d94de30d4cd6a11348b8c0451d7",
                                 "successor": "0562e39533671e0685613692d27c446b8c4d2c4322cd51fa50692a8525ce88fe43119f8953614b33503761e8622cca51df0e683dedad8548f74a77ff455c4dea"
                             },
                             {
-                                "witness_event_id": "1",
-                                "depth": "1",
+                                "witness_event_id": 1,
+                                "depth": 1,
                                 "left_leaf": "1573fe27d87713699cafdcb9ff84e87d8057d29e11c5c195b4c506c92a91b3bb94cda360778d662fc4df5c386f43144efb08d014f5144020ce01b878c7fae166",
                                 "right_leaf": "0562e39533671e0685613692d27c446b8c4d2c4322cd51fa50692a8525ce88fe43119f8953614b33503761e8622cca51df0e683dedad8548f74a77ff455c4dea",
                                 "successor": "b694444e086a5b8c0273bbcf98ed180dc17fe8b07aa72c60160dc38ce140ba8976077c51c8e9330352745981bda21a186436034d239958355386fcde4379a1f3"
                             },
                             {
-                                "witness_event_id": "1",
-                                "depth": "0",
+                                "witness_event_id": 1,
+                                "depth": 0,
                                 "left_leaf": "b694444e086a5b8c0273bbcf98ed180dc17fe8b07aa72c60160dc38ce140ba8976077c51c8e9330352745981bda21a186436034d239958355386fcde4379a1f3",
                                 "right_leaf": "e47f288bc7cc63a46ceba0a692f9551295f76ddb601884f135564b82ff51602504300fcf1cc6c139d457b7577a56a4c31ee39550273d8873e097c8bfb894497e",
                                 "successor": "c2c84eb0f69b769493e39b6e86268957be98fe735b5782cfcbb49a216ec17684dabda30082212080bb522dc3665fb226ad4932f7d8e1baf5808efd08f38a2ac8"
