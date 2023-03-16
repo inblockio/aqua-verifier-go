@@ -159,10 +159,8 @@ type RevisionSignature struct {
 
 // MerkleNode holds the entries for the structured merkle proof
 type MerkleNode struct {
-	// XXX: bug, api returns string representation of witness_event_id not int
-	WitnessEventId string `json:"witness_event_id"`
-	// XXX: bug, api returns string representation of depth not int
-	Depth     string `json:"depth"`
+	WitnessEventId int `json:"witness_event_id"`
+	Depth     int `json:"depth"`
 	LeftLeaf  string `json:"left_leaf"`
 	RightLeaf string `json:"right_leaf"`
 	Successor string `json:"successor"`
@@ -170,8 +168,7 @@ type MerkleNode struct {
 
 // RevisionWitness holds the Witness data in a Revision
 type RevisionWitness struct {
-	// XXX: bug, api returns string representation of witness_event_id not int
-	WitnessEventId               string        `json:"witness_event_id"`
+	WitnessEventId               int        `json:"witness_event_id"`
 	DomainId                     string        `json:"domain_id"`
 	DomainSnapshotTitle          string        `json:"domain_snapshot_title"`
 	WitnessHash                  string        `json:"witness_hash"`
